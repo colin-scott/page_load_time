@@ -10,14 +10,19 @@ PLT is after setting network latency for cacheable objects to 0.
 
 -------------- Questions: --------------
 
-What's the query to know whether a response is cacheable?
+Does WPR insert the original delays by default? -> Yes, but the original
+execution isn't that close to the replayed. Although, when repeatedly
+replaying, the results are fairly consistent. Plan: get the original PLT by
+replaying, not by mining it directly from the HAR. This also solves the IE
+prolem.
+
+Does HAR have enough of the response body content to be able to replay?
 
 Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
 practice? Obviously not 100%, as we're assuming for the analysis.
 
-Does WPR support HAR?
-
-Are the HTTP Archives complete enough to be able to replay with WPR?
+Are the HTTP Archives complete enough to be able to replay with WPR? Email
+response said something about javascript injection (deterministic.js).
 
 -------------- Implementation notes: --------------
 
@@ -26,22 +31,18 @@ Are the HTTP Archives complete enough to be able to replay with WPR?
 
 - It is possible to get individual HAR files, by issuing queries to:
 
-http://httparchive.webpagetest.org/export.php?test=$wptid&run=$wptrun&bodies=0&pretty=0
+http://httparchive.webpagetest.org/export.php?test=$wptid&run=$wptrun&bodies=1&pretty=0
 
 using the wptid and wptrun values in the Pages table
 
 - Need to join the `time` field of the original request with the `time` field of
-the responses.
+the responses to get the relative timings.
 
 -------------- Tools: --------------
 
 WPR:
 
 https://github.com/chromium/web-page-replay
-
-Possible alternative to WPR:
-
-http://www.charlesproxy.com/
 
 HTTP Archive Downloads:
 
