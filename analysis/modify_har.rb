@@ -3,22 +3,10 @@
 # TODO(cs): make cache hit ratio tunable.
 # TODO(cs): two analyses: perfect cachability at proxy, and perfect
 # cachability in browser. Use CC: private vs. CC: public to make distinction.
+# TODO(cs): don't assume that cache is co-located with browser, i.e. insert
+# delays between browser and perfect cache.
 
-require 'json'
-
-def parse_har_file(path)
-  begin
-    return JSON.parse File.read(path)
-  rescue => err
-    raise "Could not parse archive file #{path}: #{err.to_s}"
-  end
-end
-
-def write_har_file(har, path)
-  File.open(path, "w") do |f|
-    f.write(har.to_json)
-  end
-end
+require 'har_util.rb'
 
 # har is a Hash. Assumes that the har is for only a single page load.
 def assume_perfect_cache!(har)
