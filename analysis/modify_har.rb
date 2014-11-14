@@ -6,12 +6,25 @@
 # TODO(cs): don't assume that cache is co-located with browser, i.e. insert
 # delays between browser and perfect cache.
 
-require 'har_util.rb'
+require_relative 'har_util.rb'
 
 # har is a Hash. Assumes that the har is for only a single page load.
 def assume_perfect_cache!(har)
+  total_cacheable_bytes = 0
+  # WPT only tracks bytes in before Document Complete time. This tracks all
+  # bytes in.
+  total_bytes_in = 0
   har['log']['entries'].each do |entry|
-    if is_cacheable(entry['response'])
+    is_cacheable = is_cacheable(entry['response'])
+    if entry['response']['headerSize'] != -1
+      total_bytes_in += entry['response']['headerSize']
+      total_cacheable_bytes += entry['response']['headersSize'] if is_cacheable
+    end
+    if entry['response']['bodySize'] != -1
+      total_bytes_in += entry['response']['bodySize']
+      total_cacheable_bytes += entry['response']['bodySize'] if is_cacheable
+    end
+    if is_cacheable
       entry['time'] = 0
       timings = entry['timings']
       timings['blocked'] = 0
@@ -23,6 +36,10 @@ def assume_perfect_cache!(har)
       timings['ssl'] = -1
     end
   end
+  page = har['log']['pages'][0]
+  page['_cacheable_response_bytes'] = total_cacheable_bytes
+  page['_cacheable_bytes_fraction'] = total_cacheable_bytes * 1.0 / total_bytes_in
+  page['_total_bytes_in'] = total_bytes_in
 end
 
 def is_cacheable(response)
