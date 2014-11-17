@@ -5,6 +5,7 @@
 # cachability in browser. Use CC: private vs. CC: public to make distinction.
 # TODO(cs): don't assume that cache is co-located with browser, i.e. insert
 # delays between browser and perfect cache.
+# TODO(cs): account for performance cost of conditional GETs
 
 require_relative 'har_util.rb'
 

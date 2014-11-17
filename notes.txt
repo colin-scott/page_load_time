@@ -29,6 +29,10 @@ response said something about javascript injection (deterministic.js).
 - Might need to get webkit-headless running. (Although, it was IE that did the
   original web page loads?)
 
+http://dsalzr.wordpress.com/2012/08/10/theres-still-no-perfect-headless-browser/
+http://stackoverflow.com/questions/9210765/any-way-to-start-google-chrome-in-headless-mode
+There's also WPT.
+
 - It is possible to get individual HAR files, by issuing queries to:
 
 http://httparchive.webpagetest.org/export.php?test=$wptid&run=$wptrun&bodies=1&pretty=0
