@@ -6,6 +6,8 @@
 # TODO(cs): don't assume that cache is co-located with browser, i.e. insert
 # delays between browser and perfect cache.
 # TODO(cs): account for performance cost of conditional GETs
+# TODO(cs): show a CDF of fraction of response bytes that are cacheable per
+# site.
 
 require_relative 'har_util.rb'
 
