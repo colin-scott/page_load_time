@@ -2,12 +2,25 @@
 
 - Figure out how to modify delays within WPR.
 
+- Need to configure PhantomJS to clear cache for every load.
+
+- Possible to save a har file and measure PLT at same time?
+
+- How to know when WPR has finished booting?
+
 ---------------- Notes: ------------------
 
 Don't necessarily need to know the critical path, just need to know what the
 PLT is after setting network latency for cacheable objects to 0.
 
+# Save a har file:
+phantomjs examples/netsniff.js http://www.igvita.com/ > igvita.har
+
+
 ---------------- Questions: ------------------
+
+Would it be advantageous to have PhantomJS emulate a particular browser? (Is
+that possible?)
 
 Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
 practice? Obviously not 100%, as we're assuming for the analysis.
@@ -16,6 +29,7 @@ practice? Obviously not 100%, as we're assuming for the analysis.
 --------------- Installation: --------------
 
 brew update && brew install phantomjs
+cd analysis && git clone git@github.com:colin-scott/web-page-replay.git wpr
 
 
 
