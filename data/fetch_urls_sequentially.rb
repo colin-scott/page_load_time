@@ -3,24 +3,6 @@
 require_relative "urlsafe_name.rb"
 require 'pty'
 
-def kill_all_children(parent_id)
-  # get a list of processes and children
-  process_output = `ps -eo pid,ppid,args | grep #{parent_pid} | grep -iv grep`
-
-  # break out column output into pid, parent_id, command
-  matches = process_output.scan /^\s*(\d+)\s*(\d+)\s*(.*)$/
-  return nil if matches.nil? || matches.empty?
-
-  # check for children
-  got_children = false
-  matches.each do |match|
-    next if match.size != 3
-    next if got_children == true
-    got_children = true if match[1].to_i == parent_pid
-  end
-  return nil unless got_children
-end
-
 File.foreach("target_urls") do |url|
   wpr_output = "wpr/#{filesafe_name(url)}.wpr"
   cmd = "sudo ../analysis/wpr/replay.py -i ../analysis/wpr/deterministic.js --record #{wpr_output}"
