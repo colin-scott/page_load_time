@@ -1,14 +1,59 @@
--------------- Notes: --------------
+---------------- TODO: ------------------
+
+- Figure out how to modify delays within WPR.
+
+---------------- Notes: ------------------
+
+Don't necessarily need to know the critical path, just need to know what the
+PLT is after setting network latency for cacheable objects to 0.
+
+---------------- Questions: ------------------
+
+Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
+practice? Obviously not 100%, as we're assuming for the analysis.
+
+
+--------------- Installation: --------------
+
+brew update && brew install phantomjs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*********** OLD (httparchive.org) NOTES **************
 
 It's the `requests` table that includes responses headers, not the `pages`
 table.
 
 The `stats` (and `pages`?) table has the original onLoad time.
 
-Don't necessarily need to know the critical path, just need to know what the
-PLT is after setting network latency for cacheable objects to 0.
+Small problem: many of the HAR files aren't fetchable from httparchive.org.
+The web server responds with a 200, but no body.
+
+May not be able to get historical data for before 2012:
+"Jul 1 2012 - The HTTP
+Archive Mobile switched from running on the Blaze.io framework to WebPagetest.
+This involved several changes including new iPhone hardware (although both
+used iOS5) and a new geo location (from Toronto to Redwood City)."
 
 -------------- Questions: --------------
+
+Does WPR delay DNS requests?
 
 Does WPR insert the original delays by default? -> Yes, but the original
 execution isn't that close to the replayed. Although, when repeatedly
@@ -16,10 +61,8 @@ replaying, the results are fairly consistent. Plan: get the original PLT by
 replaying, not by mining it directly from the HAR. This also solves the IE
 prolem.
 
-Does HAR have enough of the response body content to be able to replay?
-
-Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
-practice? Obviously not 100%, as we're assuming for the analysis.
+Does HAR have enough of the response body content to be able to replay? -> Not
+sure about Flash/Video.
 
 Are the HTTP Archives complete enough to be able to replay with WPR? Email
 response said something about javascript injection (deterministic.js).
@@ -42,6 +85,16 @@ using the wptid and wptrun values in the Pages table
 - Need to join the `time` field of the original request with the `time` field of
 the responses to get the relative timings.
 
+--------------- Workflow ---------------------
+
+./data/fetch_har_files.rb /path/to/httparchive_pages.csv
+./analysis/modify_all_hars.sh data/har/*har
+./analysis/convert_all_hars.sh data/har/*har
+for F in data/wpr/*
+  sudo ./analysis/wpr/replay.py --use_server_delays $F
+  # Load webpage
+done
+
 -------------- Tools: --------------
 
 WPR:
@@ -63,3 +116,5 @@ http://bigqueri.es/t/getting-started-with-bigquery-http-archive/2
 Query on cache-control policy:
 
 http://bigqueri.es/t/cache-control-response-policy-of-html-documents/310
+
+
