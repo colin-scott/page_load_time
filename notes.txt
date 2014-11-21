@@ -2,20 +2,12 @@
 
 - Figure out how to modify delays within WPR.
 
-- Need to configure PhantomJS to clear cache for every load.
-
-- Possible to save a har file and measure PLT at same time?
-
-- How to know when WPR has finished booting?
+- Figure out how to parralelize fetching.
 
 ---------------- Notes: ------------------
 
 Don't necessarily need to know the critical path, just need to know what the
 PLT is after setting network latency for cacheable objects to 0.
-
-# Save a har file:
-phantomjs examples/netsniff.js http://www.igvita.com/ > igvita.har
-
 
 ---------------- Questions: ------------------
 
