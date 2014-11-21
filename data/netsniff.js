@@ -128,7 +128,7 @@ if (system.args.length === 1) {
     page.open(page.address, function (status) {
         var har;
         if (status !== 'success') {
-            console.log('FAIL to load the address');
+            console.log('FAIL to load the address' + status);
             phantom.exit(1);
         } else {
             page.endTime = new Date();
