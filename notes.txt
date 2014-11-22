@@ -1,8 +1,8 @@
 ---------------- TODO: ------------------
 
-- Figure out how to modify delays within WPR.
+- Figure out replay.
 
-- Figure out how to parralelize fetching.
+- Figure out how to parralelize fetching?
 
 ---------------- Notes: ------------------
 
