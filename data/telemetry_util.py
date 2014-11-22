@@ -11,12 +11,24 @@ import sys
 import time
 import base64
 
-
-class TimeoutException(Exception):
-  pass
+def exponential_backoff(function, arg):
+  success = False
+  current_try = 0
+  max_tries = 5
+  while not success and current_try <= max_tries:
+    try:
+      current_try += 1
+      function(arg)
+      success = True
+    except Exception as e:
+      print "Failed. Retrying.", str(e)
+      time.sleep(1 << current_try)
 
 def FileSafeName(name):
   return base64.urlsafe_b64encode(name)
+
+class TimeoutException(Exception):
+  pass
 
 def GetBaseDir():
   main_module = sys.modules['__main__']
