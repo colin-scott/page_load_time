@@ -22,6 +22,14 @@ def exponential_backoff(function, arg):
       success = True
     except Exception as e:
       print "Failed. Retrying.", str(e)
+      # Stopgap until we figure out why replay isn't always terminating
+      # correctly...
+      if current_try == 2:
+        os.system("pkill -15 -f replay.py")
+        os.system("pkill -15 -f phantomjs")
+      if current_try == 4:
+        os.system("pkill -9 -f replay.py")
+        os.system("pkill -9 -f phantomjs")
       time.sleep(1 << current_try)
 
 def FileSafeName(name):
