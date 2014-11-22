@@ -23,9 +23,9 @@ practice? Obviously not 100%, as we're assuming for the analysis.
 brew update && brew install phantomjs
 cd analysis && git clone git@github.com:colin-scott/web-page-replay.git wpr
 
-
-
-
+# To analyze har files:
+npm install yslow -g
+yslow --info basic <har file>
 
 
 
