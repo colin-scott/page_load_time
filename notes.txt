@@ -5,6 +5,8 @@
 - Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
   took ~1 sec.
 
+- Graph difference between original PLT and replay PLT?
+
 ---------------- Notes: ------------------
 
 Don't necessarily need to know the critical path, just need to know what the
@@ -23,10 +25,6 @@ practice? Obviously not 100%, as we're assuming for the analysis.
 brew update && brew install phantomjs
 cd analysis && git clone git@github.com:colin-scott/web-page-replay.git wpr
 
-# To analyze har files:
-npm install yslow -g
-yslow --info basic <har file>
-
 -------------- Workflow: ----------------
 
 ./data/csv/extract_urls.rb httparchive*pages.csv > ../target_urls
@@ -36,7 +34,11 @@ cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
 cd data
 sudo ./replay_urls_sequentially.py ./data/wpr
-
+cd ../analysis
+./har_processing/extract_plt.rb ../data/replay > plts.dat
+cd graphs/percent_plt_reduction
+./compute_median_reduction.rb ../../plts.dat > percent_reduction.dat
+./generate_cdf_from_raw_data.sh percent_reduction.dat
 
 
 
