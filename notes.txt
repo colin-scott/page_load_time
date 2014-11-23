@@ -1,8 +1,11 @@
 ---------------- TODO: ------------------
 
-- Figure out replay.
+- Script for extracting PLT out of original HARs
 
 - Figure out how to parralelize fetching?
+
+- Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
+  took ~1 sec.
 
 ---------------- Notes: ------------------
 
@@ -27,6 +30,12 @@ cd analysis && git clone git@github.com:colin-scott/web-page-replay.git wpr
 npm install yslow -g
 yslow --info basic <har file>
 
+-------------- Workflow: ----------------
+
+./data/csv/extract_urls.rb httparchive*pages.csv > ../target_urls
+sudo ./data/fetch_urls_sequentially.py
+./analysis/wpr/modify_wpr_delays.py ./data/wpr
+sudo ./data/replay_urls_sequentially.py
 
 
 

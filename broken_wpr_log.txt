@@ -1,0 +1,16 @@
+2014-11-22 14:49:56,825 INFO Saved original primary DNS nameserver: 66.28.65.196
+2014-11-22 14:49:56,828 INFO Loaded 17 responses from wpr/aHR0cDovLzBjY3VsdGlzdC5jb20v.wpr
+2014-11-22 14:49:56,844 INFO Changed temporary primary nameserver to 127.0.0.1
+2014-11-22 14:49:56,845 WARNING DNS server started on 127.0.0.1:53
+2014-11-22 14:49:56,846 WARNING HTTP server started on 127.0.0.1:80
+2014-11-22 14:49:56,846 WARNING HTTPS server started on 127.0.0.1:443
+2014-11-22 14:49:56,924 DEBUG Using delays (ms): {'headers': 0, 'data': [0], 'connect': 0}
+2014-11-22 14:49:56,924 DEBUG Served: GET http://127.0.0.1:80/web-page-replay-generate-200 [('host', '127.0.0.1:80')] (0ms)
+2014-11-22 14:49:56,926 DEBUG Using delays (ms): {'headers': 0, 'data': [0], 'connect': 0}
+2014-11-22 14:49:56,926 DEBUG Served: GET http://127.0.0.1:80/web-page-replay-command-exit [('host', '127.0.0.1:80')] (0ms)
+2014-11-22 14:49:57,847 INFO Stopped HTTPS server. Total time processing requests: 0ms
+2014-11-22 14:49:57,877 DEBUG dnsproxy: 0ccultist.com. -> 127.0.0.1 (replay web proxy)
+2014-11-22 14:49:57,877 DEBUG dnsproxy: 0ccultist.com. -> 127.0.0.1 (replay web proxy)
+2014-11-22 14:49:57,878 DEBUG Using delays (ms): {'headers': 210, 'data': [1.0967254638671875e-05, 1.3113021850585938e-05], 'connect': 64}
+2014-11-22 14:49:57,878 INFO Stopped HTTP server. Total time processing requests: 1ms
+2014-11-22 14:49:57,904 INFO Stopped DNS server

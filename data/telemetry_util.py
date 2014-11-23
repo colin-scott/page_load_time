@@ -11,14 +11,14 @@ import sys
 import time
 import base64
 
-def exponential_backoff(function, arg):
+def exponential_backoff(function, *args):
   success = False
   current_try = 0
   max_tries = 5
   while not success and current_try <= max_tries:
     try:
       current_try += 1
-      function(arg)
+      function(*args)
       success = True
     except Exception as e:
       print "Failed. Retrying.", str(e)
