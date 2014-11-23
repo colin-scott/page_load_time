@@ -199,6 +199,7 @@ class ReplayServer(object):
     is_posix = sys.platform.startswith('linux') or sys.platform == 'darwin'
     logging.debug('Starting Web-Page-Replay: %s', self._cmd_line)
     with self._OpenLogFile() as log_fh:
+      log_fh.write("Executing %s\n" % ' '.join(self._cmd_line))
       self.replay_process = subprocess.Popen(
           self._cmd_line, stdout=log_fh, stderr=subprocess.STDOUT,
           preexec_fn=(_ResetInterruptHandler if is_posix else None))

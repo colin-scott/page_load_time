@@ -20,12 +20,15 @@ def replay(wpr_archive, url, filename, num_replays=1):
     phantomjs_err = "replay/%s.%d.err" % (filename, replay)
     replay_output = "replay/%s.%d.har" % (filename, replay)
     if os.path.exists(replay_output):
-      print "Replay file %s already exists" % plt_output
+      print "Replay file %s already exists" % replay_output
       return
     def execute_replay():
-      with wpr.ReplayServer(wpr_archive, replay_options=["--use_server_delay", "--use_closest_match"]):
-        subprocess.Popen("phantomjs --disk-cache=false netsniff '%s'>'%s' 2>'%s'" %
-                         (url, replay_output, phantomjs_err), shell=True)
+      replay_options = ["--use_server_delay", "--use_closest_match"]
+      with wpr.ReplayServer(wpr_archive, replay_options=replay_options):
+        cmd = ("phantomjs --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
+               (url, replay_output, phantomjs_err))
+        print "Executing", cmd
+        subprocess.Popen(cmd, shell=True)
     exponential_backoff(execute_replay)
 
 if __name__ == '__main__':
