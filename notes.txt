@@ -1,7 +1,5 @@
 ---------------- TODO: ------------------
 
-- Script for extracting PLT out of original HARs
-
 - Figure out how to parralelize fetching?
 
 - Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
@@ -20,7 +18,6 @@ that possible?)
 Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
 practice? Obviously not 100%, as we're assuming for the analysis.
 
-
 --------------- Installation: --------------
 
 brew update && brew install phantomjs
@@ -33,9 +30,12 @@ yslow --info basic <har file>
 -------------- Workflow: ----------------
 
 ./data/csv/extract_urls.rb httparchive*pages.csv > ../target_urls
+cd data
 sudo ./data/fetch_urls_sequentially.py
+cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
-sudo ./data/replay_urls_sequentially.py
+cd data
+sudo ./replay_urls_sequentially.py ./data/wpr
 
 
 
