@@ -13,14 +13,17 @@ def is_pc(experiment_name)
   # - The replay number is 1-indexed.
   # TODO(cs): encoding the experiment in the filename is jenky.
   # Should really use a database.
-  name = name.gsub(/.\d+.har$/, "")
-  return (name =~ /.pc$/)
+  experiment_name = experiment_name.gsub(/.\d+.har$/, "")
+  return (experiment_name =~ /.pc$/)
 end
 
-def median(array)
-  sorted = array.sort
-  len = sorted.length
-  return (sorted[(len - 1) / 2] + sorted[len / 2]) / 2.0
+class Array
+  def median
+    sorted = self.sort
+    len = sorted.length
+    raise ValueError("Median undefined for empty array!") if len == 0
+    return (sorted[(len - 1) / 2] + sorted[len / 2]) / 2.0
+  end
 end
 
 class ExperimentGroup
@@ -41,11 +44,11 @@ class ExperimentGroup
   end
 
   def get_pc_median
-    return median(@pc_runs)
+    return @pc_runs.median
   end
 
   def get_unmodified_median
-    return median(@unmodified_runs)
+    return @unmodified_runs.median
   end
 end
 
@@ -75,7 +78,9 @@ class DataIterator
     end
 
     if not @experiment_group.nil?
-      return @experiment_group
+      return_value = @experiment_group
+      @experiment_group = nil
+      return return_value
     end
   end
 end
@@ -83,6 +88,7 @@ end
 # First sort the input, so that Ruby doen't need to load the entire file into
 # memory.
 input = ARGV.shift
+puts "Sorting #{input}..."
 system("sort #{input} > buf && mv buf #{input}")
 
 itr = DataIterator.new(input)
