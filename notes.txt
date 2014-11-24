@@ -7,11 +7,6 @@
 
 - Graph difference between original PLT and replay PLT?
 
----------------- Notes: ------------------
-
-Don't necessarily need to know the critical path, just need to know what the
-PLT is after setting network latency for cacheable objects to 0.
-
 ---------------- Questions: ------------------
 
 Would it be advantageous to have PhantomJS emulate a particular browser? (Is
@@ -39,6 +34,12 @@ cd ../analysis
 cd graphs/percent_plt_reduction
 ./compute_median_reduction.rb ../../plts.dat > percent_reduction.dat
 ./generate_cdf_from_raw_data.sh percent_reduction.dat
+
+# Other graphs
+cd ../../
+./har_processing/extract_cacheable_bytes.rb ../data/replay > cacheable_bytes.dat
+./graphs/cacheable_bytes/generate_cdf_from_raw_data.sh cacheable_bytes.dat
+./graphs/total_bytes/generate_cdf_from_raw_data.sh cacheable_bytes.dat
 
 
 
@@ -133,5 +134,3 @@ http://bigqueri.es/t/getting-started-with-bigquery-http-archive/2
 Query on cache-control policy:
 
 http://bigqueri.es/t/cache-control-response-policy-of-html-documents/310
-
-
