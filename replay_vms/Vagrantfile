@@ -14,6 +14,7 @@ $globalscript = <<GLOBALSCRIPT
     git clone https://github.com/colin-scott/page_load_time.git
     cd page_load_time
     cd analysis && git clone https://github.com/colin-scott/web-page-replay.git wpr
+    sudo chown -R vagrant:vagrant /home/vagrant/page_load_time
     sudo echo "US/Pacific" > /etc/timezone
     sudo dpkg-reconfigure -f noninteractive tzdata
     echo "#"

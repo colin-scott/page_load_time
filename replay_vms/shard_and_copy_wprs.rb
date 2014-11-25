@@ -21,7 +21,7 @@ def split_list(l, split_ways)
       remainder -= 1
     end
 
-    splits << l.slice[start_idx...split_idx]
+    splits << l[start_idx...split_idx]
     start_idx = split_idx
   end
   splits
@@ -40,13 +40,15 @@ def correct_splits!(splits)
     first_split = splits[i]
     second_split = splits[i+1]
     return if first_split.length == 0
-    return if second_split.length = 0
+    return if second_split.length == 0
     last_url = parse_wpr_name(first_split[-1])
     first_url = parse_wpr_name(second_split[0])
     while first_url == last_url and second_split.length > 0
+      puts "Correcting #{second_split[0]}"
       first_split << second_split.shift
       first_url = parse_wpr(second_split[0])
     end
+    i += 1
   end
 end
 
@@ -56,27 +58,33 @@ if __FILE__ == $0
     exit 1
   end
 
-  remote_tar_path = "~/page_load_time/data/archives.tar"
+  remote_tar_path = "/home/vagrant/page_load_time/data/wpr.tar"
   vms = ["slave2",
          "slave3",
          "slave4",
          "slave5"]
 
   # split up inputs
-  all_files = Dir.glob(ARGV.shift + "/*.wpr").sort
-  splits = split_list(all_files, vms.length)
-  # Make sure that .pc experiments are together with the original
-  correct_splits!(splits)
+  dir = ARGV.shift
+  Dir.chdir File.dirname(dir) do
+    all_files = Dir.glob("#{File.basename(dir)}/*.wpr").sort
+    splits = split_list(all_files, vms.length)
+    # Make sure that .pc experiments are together with the original
+    correct_splits!(splits)
 
-  # scp each segment
-  vms.zip(splits).each do |pair|
-    vm, split = pair
-    copy_list_file = "/tmp/copy_list.txt"
-    copy_list = File.open(copy_list_file, "w")
-    copy_list.write(split.join("\n"))
-    copy_list.close
-    # tar while scp'ing
-    system(%{tar -cf - --files-from=#{copy_list_file} | vagrant ssh #{vm} -c "cat > #{remote_tar_path}"})
-    system(%{vagrant ssh #{vm} -c "cd #{File.dirname(remote_path)}; tar -xvf #{File.basename(remote_tar)}"})
+    # scp each segment
+    vms.zip(splits).each do |pair|
+      vm, split = pair
+      copy_list_file = "/tmp/copy_list.txt"
+      copy_list = File.open(copy_list_file, "w")
+      copy_list.write(split.join("\n"))
+      copy_list.close
+
+      puts "Copying split to #{vm}."
+      # tar while scp'ing
+      # TODO(cs): can't be in both directories at once
+      system(%{tar -cf - --files-from=#{copy_list_file} | vagrant ssh #{vm} -c "sudo cat > #{remote_tar_path}"})
+      system(%{vagrant ssh #{vm} -c "cd #{File.dirname(remote_tar_path)}; tar -xvf #{File.basename(remote_tar_path)}"})
+    end
   end
 end
