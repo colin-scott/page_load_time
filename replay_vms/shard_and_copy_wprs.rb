@@ -46,7 +46,7 @@ def correct_splits!(splits)
     while first_url == last_url and second_split.length > 0
       puts "Correcting #{second_split[0]}"
       first_split << second_split.shift
-      first_url = parse_wpr(second_split[0])
+      first_url = parse_wpr_name(second_split[0])
     end
     i += 1
   end

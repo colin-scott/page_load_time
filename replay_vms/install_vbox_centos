@@ -23,5 +23,5 @@ yum install VirtualBox-4.3-4.3.20_96996_el6-1.x86_64.rpm
 
 # ------------------- Vagrant ------------------
 
-wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.4.2_x86_64.rpm -O vagrant_1.4.2_x86_64.rpm
-sudo rpm -i vagrant_1.4.2_x86_64.rpm
+wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.5_x86_64.rpm -O vagrant_1.6.5_x86_64.rpm
+sudo rpm -i vagrant_1.6.5_x86_64.rpm
