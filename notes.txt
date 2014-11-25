@@ -20,7 +20,7 @@ practice? Obviously not 100%, as we're assuming for the analysis.
 --------------- Installation: --------------
 
 brew update && brew install phantomjs
-cd analysis && git clone git@github.com:colin-scott/web-page-replay.git wpr
+cd analysis && git clone https://github.com/colin-scott/web-page-replay.git
 
 -------------- Workflow: ----------------
 
