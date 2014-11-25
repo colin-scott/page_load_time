@@ -59,10 +59,10 @@ if __FILE__ == $0
   end
 
   remote_tar_path = "/home/vagrant/page_load_time/data/wpr.tar"
-  vms = ["slave2",
-         "slave3",
-         "slave4",
-         "slave5"]
+  vms = ["10.9.1.2",
+         "10.9.1.3",
+         "10.9.1.4",
+         "10.9.1.5"]
 
   # split up inputs
   dir = ARGV.shift
@@ -80,11 +80,10 @@ if __FILE__ == $0
       copy_list.write(split.join("\n"))
       copy_list.close
 
-      puts "Copying split to #{vm}."
       # tar while scp'ing
-      # TODO(cs): can't be in both directories at once
-      system(%{tar -cf - --files-from=#{copy_list_file} | vagrant ssh #{vm} -c "sudo cat > #{remote_tar_path}"})
-      system(%{vagrant ssh #{vm} -c "cd #{File.dirname(remote_tar_path)}; tar -xvf #{File.basename(remote_tar_path)}"})
+      puts "Copying split to #{vm}."
+      system(%{tar -cf - --files-from=#{copy_list_file} | ssh -i /root/.ssh/tmp_vagrant_key vagrant@#{vm} "sudo cat > #{remote_tar_path}"})
+      system(%{ssh -i /root/.ssh/tmp_vagrant_key vagrant@#{vm} "cd #{File.dirname(remote_tar_path)}; tar -xvf #{File.basename(remote_tar_path)}"})
     end
   end
 end
