@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+
+# ------- Create data directories ---------
+
+
+/sbin/mkfs.ext3 -L /userdata /dev/sda1
+mkdir /userdata
+mount /dev/sda1 /userdata
+
+# ----------------- virtualbox ----------------
+
+yum -y groupinstall 'Development Tools'
+yum -y install SDL kernel-devel kernel-headers dkms
+cd /userdata
+wget http://download.virtualbox.org/virtualbox/4.3.20/VirtualBox-4.3-4.3.20_96996_el6-1.x86_64.rpm
+yum install VirtualBox-4.3-4.3.20_96996_el6-1.x86_64.rpm
+/usr/sbin/usermod -G vboxusers root
+
+# ------------------- Vagrant ------------------
+
+wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.4.2_x86_64.rpm -O vagrant_1.4.2_x86_64.rpm
+sudo rpm -i vagrant_1.4.2_x86_64.rpm

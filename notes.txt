@@ -29,6 +29,7 @@ cd data
 sudo ./data/fetch_urls_sequentially.py
 cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
+# For a parallel version of replay, see ./replay_vms/README.md
 cd data
 sudo ./replay_urls_sequentially.py ./data/wpr
 cd ../analysis
