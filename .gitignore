@@ -3,3 +3,4 @@ analysis/wpr/
 analysis/web-page-replay/
 .DS_STORE
 *.pyc
+*.vagrant*

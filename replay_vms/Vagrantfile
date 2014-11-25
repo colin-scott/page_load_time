@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+# Global provisioning.  This stuff is needed on all machines
+$globalscript = <<GLOBALSCRIPT
+    echo "#"
+    echo "# BEGIN Global Provisioning"
+    echo "#"
+    sudo apt-get update
+    sudo apt-get install --assume-yes python git phantomjs
+    git clone https://github.com/colin-scott/page_load_time.git
+    cd page_load_time
+    cd analysis && git clone https://github.com/colin-scott/web-page-replay.git wpr
+    sudo echo "US/Pacific" > /etc/timezone
+    sudo dpkg-reconfigure -f noninteractive tzdata
+    echo "#"
+    echo "# END Global Provisioning"
+    echo "#"
+GLOBALSCRIPT
+
+# What we want started up
+nodes = [
+  { :hostname => 'slave2', :ip => '10.9.1.2'},
+  { :hostname => 'slave3', :ip => '10.9.1.3'},
+  { :hostname => 'slave4', :ip => '10.9.1.4'},
+  { :hostname => 'slave5', :ip => '10.9.1.5'}
+]
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # setup et/host on boxes
+  config.hostmanager.enabled = true
+
+  nodes.each do |node|
+    config.vm.define node[:hostname] do |node_config|
+
+      node_config.vm.hostname = node[:hostname]
+      node_config.hostmanager.aliases = node[:hostname]
+
+      node_config.vm.network :private_network, ip: node[:ip]
+
+      # default memory to 1G, allow hosts[] hash to override
+      memory = node[:mem] ? node[:mem] : 1024;
+
+      node_config.vm.provider :virtualbox do |vb, override|
+        vb.customize ['modifyvm', :id, '--memory', memory.to_s ]
+        override.vm.box = 'ubuntu'
+      end
+
+      # This will now run on _ALL_ the below defined virtual machines first
+      node_config.vm.provision :shell, inline: $globalscript
+    end
+  end
+end
