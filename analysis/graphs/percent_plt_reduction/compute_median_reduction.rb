@@ -96,5 +96,5 @@ while experiment_group = itr.next_experiment_group
   pc_median = experiment_group.get_pc_median * 1.0
   unmodified_median = experiment_group.get_unmodified_median * 1.0
   percent_reduction = ((pc_median - unmodified_median) / unmodified_median) * 100.0
-  puts percent_reduction
+  puts "#{experiment_group.url} #{percent_reduction}"
 end
