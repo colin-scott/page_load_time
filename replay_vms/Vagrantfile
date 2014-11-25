@@ -4,6 +4,17 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
+if not File.exist? "/root/.ssh/tmp_vagrant_key"
+  puts "Please create a temporary ssh key at ~/.ssh/tmp_vagrant_key, with "
+  puts "ssh-keygen -t rsa"
+  puts "ssh-add ~/tmp_vagrant_key"
+  puts %{echo "Host remotehost" >> ~/.ssh/config}
+  puts %{echo "    IdentityFile ~/.ssh/tmp_vagrant_key" >> ~/.ssh/config}
+  exit 1
+end
+
+pub_key = File.read("/root/.ssh/tmp_vagrant_key.pub").chomp
+
 # Global provisioning.  This stuff is needed on all machines
 $globalscript = <<GLOBALSCRIPT
     echo "#"
@@ -17,6 +28,9 @@ $globalscript = <<GLOBALSCRIPT
     sudo chown -R vagrant:vagrant /home/vagrant/page_load_time
     sudo echo "US/Pacific" > /etc/timezone
     sudo dpkg-reconfigure -f noninteractive tzdata
+    mkdir -p /home/vagrant/.ssh
+    echo "Inserting Public Key"
+    echo "#{pub_key}" >> /home/vagrant/.ssh/authorized_keys
     echo "#"
     echo "# END Global Provisioning"
     echo "#"
