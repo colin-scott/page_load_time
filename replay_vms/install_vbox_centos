@@ -2,10 +2,15 @@
 
 # ------- Create data directories ---------
 
-
 /sbin/mkfs.ext3 -L /userdata /dev/sda1
 mkdir /userdata
 mount /dev/sda1 /userdata
+
+# ------- git + ruby ----------------------
+
+yum -y install git
+yum -y install python
+yum -y install ruby
 
 # ----------------- virtualbox ----------------
 
