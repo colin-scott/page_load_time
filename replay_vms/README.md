@@ -1,3 +1,4 @@
+sudo apt-get install VirtualBoxHeadless
 sudo apt-get install vagrant
 vagrant plugin install vagrant-hostmanager
 vagrant box add ubuntu https://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box

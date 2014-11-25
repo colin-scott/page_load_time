@@ -1,6 +1,8 @@
 ---------------- TODO: ------------------
 
-- Figure out how to parralelize fetching?
+- Start LaTeX
+
+- Graph ratio of (fraction of cacheable bytes) : fraction reduction in PLT
 
 - Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
   took ~1 sec.
