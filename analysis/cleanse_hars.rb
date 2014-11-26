@@ -12,6 +12,7 @@ if __FILE__ == $0
 
   Dir.glob(ARGV.shift + "/*.har").each do |file|
     tmp_file = "/tmp/#{File.basename file}"
+    File.open(tmp_file, "w") do |f|
       head_seen = false
       File.foreach(file) do |line|
         if not head_seen and line == "{\n"
