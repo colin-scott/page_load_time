@@ -11,6 +11,7 @@ mount /dev/sda1 /userdata
 yum -y install git
 yum -y install python
 yum -y install ruby
+yum -y install pssh
 
 # ----------------- virtualbox ----------------
 

@@ -10,7 +10,6 @@ puts  ENV["VAGRANT_HOME"]
 if not File.exist? "/root/.ssh/tmp_vagrant_key"
   puts "Please create a temporary ssh key at ~/.ssh/tmp_vagrant_key, with "
   puts "ssh-keygen -t rsa"
-  puts "ssh-add ~/tmp_vagrant_key"
   puts %{echo "Host remotehost" >> ~/.ssh/config}
   puts %{echo "    IdentityFile ~/.ssh/tmp_vagrant_key" >> ~/.ssh/config}
   exit 1
