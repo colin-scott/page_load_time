@@ -55,7 +55,7 @@ less plt_comparison.dat
 #   PLT Reduction
 ./graphs/percent_plt_reduction/compute_median_reduction.rb \
   replay_plts.dat > median_plt_reduction.dat
-(cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.cdf)
+(cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.dat)
 
 #   Ratio Cacheable bytes: PLT Reduction
 ./graphs/ratio_bytes_to_reduction/compute_ratio.rb \

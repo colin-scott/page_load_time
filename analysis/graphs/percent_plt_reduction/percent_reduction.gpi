@@ -32,7 +32,7 @@ set style line 4 lt rgb "#F25900" lw 2# pt 9
 set key top left
 
 set ylabel "CDF of web pages"
-set xlabel "Percent reduction in PLT"
+set xlabel "Fraction reduction in PLT"
 
 set yrange [0:]
 # set xrange [1:30]

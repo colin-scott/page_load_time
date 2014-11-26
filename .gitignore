@@ -4,3 +4,6 @@ analysis/web-page-replay/
 .DS_STORE
 *.pyc
 *.vagrant*
+*.cdf
+*.dat
+*.pdf
