@@ -18,6 +18,10 @@ def extract_cacheable_bytes(har)
     end
   end
 
+  return if total_bytes_in == 0
+  # 404 not found
+  return if total_bytes_in == 13
+
   page = har['log']['pages'][0]
   url = page['id']
   cacheable_bytes_fraction = total_cacheable_bytes * 1.0 / total_bytes_in
@@ -35,7 +39,7 @@ if __FILE__ == $0
       har = parse_har_file(file)
       extract_cacheable_bytes(har)
     rescue RuntimeError => e
-      $stderr.puts "Exeption processing #{file} #{e}."
+      $stderr.puts "Exception processing #{file} #{e.class}."
     end
   end
 end

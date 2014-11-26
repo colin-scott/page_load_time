@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 if [ "$1" == "" ]; then
   echo "Usage: $0 <output of extract_cacheable_bytes.rb>"
@@ -11,4 +11,3 @@ fi
 cut -d ' ' -f 2 $1 | sort -n > cacheable_bytes.cdf
 ~/Scripts/cdf/compile_ccdf.pl cacheable_bytes.cdf > buf && mv buf cacheable_bytes.cdf
 gnuplot cacheable_bytes.gpi
-open *pdf

@@ -6,7 +6,7 @@ def parse_har_file(path)
   begin
     return JSON.parse File.read(path)
   rescue => err
-    raise "Could not parse archive file #{path}: #{err.to_s}"
+    raise "Could not parse archive file #{path}: #{err.inspect}"
   end
 end
 
@@ -14,6 +14,25 @@ def write_har_file(har, path)
   File.open(path, "w") do |f|
     f.write(har.to_json)
   end
+end
+
+def passes_sanity_check(har)
+  # TODO(cs): completely redundant with extract_cacheable_bytes.rb
+  total_bytes_in = 0
+  har['log']['entries'].each do |entry|
+    ['headersSize', 'bodySize'].each do |part|
+      if entry['response'][part].nil?
+        puts "Warning: #{part} nil?. Entry: #{entry['response'].inspect}"
+      elsif entry['response'][part] != -1
+        total_bytes_in += entry['response'][part]
+      end
+    end
+  end
+
+  return false if total_bytes_in == 0
+  # 404 not found
+  return false if total_bytes_in == 13
+  return true
 end
 
 def is_cacheable(response)

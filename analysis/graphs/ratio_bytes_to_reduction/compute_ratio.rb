@@ -37,6 +37,8 @@ end
 # Now join:
 url2reduction.each do |url, reduction|
   cacheable_fraction = url2cacheable[url]
-  ratio = cacheable_fraction / reduction
-  puts "#{url} #{ratio}"
+  if not cacheable_fraction.nil?
+    ratio = cacheable_fraction / reduction
+    puts "#{url} #{ratio}"
+  end
 end

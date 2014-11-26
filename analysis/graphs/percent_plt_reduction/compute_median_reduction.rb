@@ -27,10 +27,16 @@ class Array
 end
 
 class ExperimentGroup
+  attr_accessor :url
+
   def initialize(url)
     @url = url
     @pc_runs = []
     @unmodified_runs = []
+  end
+
+  def valid?
+    (@pc_runs != [] and @unmodified_runs != [])
   end
 
   def append(filename, plt)
@@ -88,15 +94,16 @@ end
 # First sort the input, so that Ruby doen't need to load the entire file into
 # memory.
 input = ARGV.shift
-puts "Sorting #{input}..."
+$stderr.puts "Sorting #{input}..."
 system("sort #{input} > buf && mv buf #{input}")
 
 itr = DataIterator.new(input)
 while experiment_group = itr.next_experiment_group
-  next if experiment_group.pc_runs.length == 0
-  next if experiment_group.unmodified_runs.length == 0
+  next if not experiment_group.valid?
   pc_median = experiment_group.get_pc_median * 1.0
   unmodified_median = experiment_group.get_unmodified_median * 1.0
-  percent_reduction = ((pc_median - unmodified_median) / unmodified_median) * 100.0
-  puts "#{experiment_group.url} #{percent_reduction}"
+  if unmodified_median > pc_median
+    fraction_reduction = ((unmodified_median - pc_median) / unmodified_median)
+    puts "#{experiment_group.url} #{fraction_reduction}"
+  end
 end
