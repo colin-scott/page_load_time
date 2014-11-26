@@ -14,6 +14,10 @@ if os.geteuid() != 0:
   print "Must run as root"
   sys.exit(1)
 
+phantomjs_path = "phantomjs"
+if os.path.exists("/home/vagrant/local/bin/phantomjs"):
+  phantomjs_path = "/home/vagrant/local/bin/phantomjs"
+
 def replay(wpr_archive, url, filename, num_replays=1):
   for replay in xrange(1, num_replays+1):
     print "Replay #%d %s" % (replay, url)
@@ -25,8 +29,8 @@ def replay(wpr_archive, url, filename, num_replays=1):
     def execute_replay():
       replay_options = ["--use_server_delay", "--use_closest_match"]
       with wpr.ReplayServer(wpr_archive, replay_options=replay_options):
-        cmd = ("phantomjs --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
-               (url, replay_output, phantomjs_err))
+        cmd = ("%s --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
+               (phantomjs_path, url, replay_output, phantomjs_err))
         print "Executing", cmd
         subprocess.Popen(cmd, shell=True)
     exponential_backoff(execute_replay)
