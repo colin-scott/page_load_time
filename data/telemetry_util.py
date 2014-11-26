@@ -27,9 +27,11 @@ def exponential_backoff(function, *args):
       if current_try == 2:
         os.system("pkill -15 -f replay.py")
         os.system("pkill -15 -f phantomjs")
-      if current_try == 4:
+      if current_try == 3:
         os.system("pkill -9 -f replay.py")
         os.system("pkill -9 -f phantomjs")
+      if current_try == 4:
+        os.system("sudo echo 'nameserver 8.8.8.8' > /etc/resolv.conf")
       if current_try == max_tries:
         raise e
       time.sleep(1 << current_try)
