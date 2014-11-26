@@ -31,7 +31,11 @@ if __FILE__ == $0
   end
 
   Dir.glob(ARGV.shift + "/*.har").each do |file|
-    har = parse_har_file(file)
-    extract_cacheable_bytes(har)
+    begin
+      har = parse_har_file(file)
+      extract_cacheable_bytes(har)
+    rescue RuntimeError => e
+      $stderr.puts "Exeption processing #{file} #{e}."
+    end
   end
 end

@@ -1,6 +1,6 @@
 ---------------- TODO: ------------------
 
-- Start LaTeX
+- Increase parallelization
 
 - Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
   took ~1 sec.
@@ -32,21 +32,29 @@ cd data
 sudo ./replay_urls_sequentially.py ./data/wpr
 
 # Graphs:
-cd ../../
+cd ../analysis
 
 #   Cacheable bytes
 ./har_processing/extract_cacheable_bytes.rb \
-  ../data/replay > cacheable_bytes.dat
+  ../data/replay | sort | uniq > cacheable_bytes.dat
 (cd ./graphs/cacheable_bytes/; ./generate_cdf_from_raw_data.sh ../../cacheable_bytes.dat)
 
 #   Total bytes
 (cd ./graphs/total_bytes/; ./generate_cdf_from_raw_data.sh ../../cacheable_bytes.dat)
 
-#   PLT Reduction
+# Sanity check PLT difference between original and replays
+#      (sanity check replays that took too long)
 ./har_processing/extract_plt.rb \
-  ../data/replay > plt_reduction.dat
+  ../data/replay > replay_plts.dat
+./har_processing/extract_plt.rb \
+  ../data/har > original_plts.dat
+./graphs/original_vs_replay/compare.rb \
+  original_plts.dat replay_plts.dat > plt_comparison.dat
+less plt_comparison.dat
+
+#   PLT Reduction
 ./graphs/percent_plt_reduction/compute_median_reduction.rb \
-  plt_reduction.dat > median_plt_reduction.dat
+  replay_plts.dat > median_plt_reduction.dat
 (cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.cdf)
 
 #   Ratio Cacheable bytes: PLT Reduction

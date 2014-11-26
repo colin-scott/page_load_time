@@ -93,6 +93,8 @@ system("sort #{input} > buf && mv buf #{input}")
 
 itr = DataIterator.new(input)
 while experiment_group = itr.next_experiment_group
+  next if experiment_group.pc_runs.length == 0
+  next if experiment_group.unmodified_runs.length == 0
   pc_median = experiment_group.get_pc_median * 1.0
   unmodified_median = experiment_group.get_unmodified_median * 1.0
   percent_reduction = ((pc_median - unmodified_median) / unmodified_median) * 100.0
