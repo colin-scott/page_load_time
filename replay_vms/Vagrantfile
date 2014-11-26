@@ -23,15 +23,25 @@ $globalscript = <<GLOBALSCRIPT
     echo "# BEGIN Global Provisioning"
     echo "#"
     sudo apt-get update
-    sudo apt-get install --assume-yes python git phantomjs
+    sudo apt-get install --assume-yes python ruby git libicu48
     git clone https://github.com/colin-scott/page_load_time.git
     cd page_load_time
     cd analysis && git clone https://github.com/colin-scott/web-page-replay.git wpr
     sudo chown -R vagrant:vagrant /home/vagrant/page_load_time
     sudo echo "US/Pacific" > /etc/timezone
     sudo dpkg-reconfigure -f noninteractive tzdata
-    mkdir -p /home/vagrant/.ssh
+    cd
+    mkdir -p local/src/
+    cd local/src
+    wget 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2'
+    tar -xjf phantomjs-1.9.8-linux-x86_64.tar.bz2
+    cd ..
+    mkdir -p bin
+    cd bin
+    ln -s /home/vagrant/local/src/phantomjs-1.9.8-linux-x86_64/bin/phantomjs .
+    echo "export PATH=$PATH:/home/vagrant/local/bin" >> ~/.bashrc
     echo "Inserting Public Key"
+    mkdir -p /home/vagrant/.ssh
     echo "#{pub_key}" >> /home/vagrant/.ssh/authorized_keys
     echo "#"
     echo "# END Global Provisioning"
