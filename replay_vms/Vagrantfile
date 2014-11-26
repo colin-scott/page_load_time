@@ -30,7 +30,7 @@ $globalscript = <<GLOBALSCRIPT
     sudo chown -R vagrant:vagrant /home/vagrant/page_load_time
     sudo echo "US/Pacific" > /etc/timezone
     sudo dpkg-reconfigure -f noninteractive tzdata
-    cd
+    cd /home/vagrant
     mkdir -p local/src/
     cd local/src
     wget 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2'
@@ -39,7 +39,7 @@ $globalscript = <<GLOBALSCRIPT
     mkdir -p bin
     cd bin
     ln -s /home/vagrant/local/src/phantomjs-1.9.8-linux-x86_64/bin/phantomjs .
-    echo "export PATH=$PATH:/home/vagrant/local/bin" >> ~/.bashrc
+    echo "export PATH=$PATH:/home/vagrant/local/bin" >> /home/vagrant/.bashrc
     echo "Inserting Public Key"
     mkdir -p /home/vagrant/.ssh
     echo "#{pub_key}" >> /home/vagrant/.ssh/authorized_keys
