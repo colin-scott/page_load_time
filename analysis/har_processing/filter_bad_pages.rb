@@ -3,11 +3,11 @@
 require 'fileutils'
 require_relative 'har_util.rb'
 
-httparchive_path = "#{File.dirname(File.dirname(__FILE__))}/wpr/httparchive.py"
-
 def valid_wpr(wpr_archive, url)
+  httparchive_path = "#{File.dirname(File.expand_path(File.dirname(__FILE__)))}/wpr/httparchive.py"
+  puts httparchive_path
   `#{httparchive_path} ls #{wpr_archive}`.each_line do |line|
-    if line =~ url
+    if line =~ /#{url}/
       return true
     end
   end
@@ -35,7 +35,7 @@ if __FILE__ == $0
   end
 
   har_directory = ARGV.shift
-  data_dir = File.dirname(File.dirname(original_load))
+  data_dir = File.dirname((File.expand_path(har_directory)))
 
   # Where we place bad files
   filter_directory = "#{data_dir}/filtered"
@@ -47,7 +47,8 @@ if __FILE__ == $0
   invalid_loads = File.open("#{filter_stats_directory}/invalid_loads.txt", "w")
 
   Dir.glob("#{har_directory}/*.har").each do |original_load|
-    url = decode_b64(File.basename(original_load))
+    puts original_load
+    url = decode_b64(File.basename(original_load.gsub(/.har$/, "")))
 
     original_har_path, wpr_archive, pc_wpr_archive, err, all_replays, all_replay_errs = get_all_files_for_original_har(original_load)
 
