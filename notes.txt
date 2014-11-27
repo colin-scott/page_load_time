@@ -1,5 +1,9 @@
 ---------------- TODO: ------------------
 
+- Filter out bad wprs and bad replays
+
+- Balance data
+
 - Increase parallelization
 
 - Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
@@ -30,6 +34,8 @@ cd ..
 # For a parallel version of replay, see ./replay_vms/README.md
 cd data
 sudo ./replay_urls_sequentially.py ./data/wpr
+cd ../analysis
+./cleanse_hars.rb ../data/replay
 
 # Graphs:
 cd ../analysis

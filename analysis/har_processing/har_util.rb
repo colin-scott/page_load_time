@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'json'
+require 'base64'
 
 def parse_har_file(path)
   begin
@@ -14,6 +15,45 @@ def write_har_file(har, path)
   File.open(path, "w") do |f|
     f.write(har.to_json)
   end
+end
+
+def decode_b64(b64)
+  Base64.urlsafe_decode64(b64)
+end
+
+def get_all_files_for_original_har(original_har_path)
+  basename = File.basename original_har_path
+  b64 = basename.gsub(/.har$/, "")
+  data_dir = File.dirname(File.dirname(original_har_path))
+
+  # WPR files:
+  wpr_dir = "#{data_dir}/wpr"
+  wpr = "#{b64}.wpr"
+  wpr_archive = "#{wpr_dir}/#{wpr}"
+  pc_wpr = "#{b64}.pc.wpr"
+  pc_wpr_archive = "#{wpr_dir}/#{pc_wpr}"
+  err = "#{b64}.err"
+  err_file = "#{wpr_dir}/#{err}"
+
+  # Replay files:
+  replay_dir = "#{data_dir}/replay"
+  all_replays = []
+  all_replay_errs = []
+  # XXX
+  num_replays = 1
+  for i in xrange(1, num_replays+1):
+    all_replays << "#{replay_dir}/#{b64}.#{i}.har"
+    all_replays << "#{replay_dir}/#{b64}.pc.#{i}.har"
+    all_replay_errs << "#{replay_dir}/#{b64}.#{i}.err"
+    all_replay_errs << "#{replay_dir}/#{b64}.pc.#{i}.err"
+
+  # N.B. last two elements are lists
+  return [original_har_path,
+          wpr_archive,
+          pc_wpr_archive,
+          err,
+          all_replays,
+          all_replay_errs]
 end
 
 def passes_sanity_check(har)

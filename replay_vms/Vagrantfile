@@ -5,7 +5,6 @@
 VAGRANTFILE_API_VERSION = "2"
 
 ENV["VAGRANT_HOME"] = "/userdata/.vagrant.d"
-puts  ENV["VAGRANT_HOME"]
 
 if not File.exist? "/root/.ssh/tmp_vagrant_key"
   puts "Please create a temporary ssh key at ~/.ssh/tmp_vagrant_key, with "
