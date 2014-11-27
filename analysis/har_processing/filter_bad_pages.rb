@@ -16,7 +16,7 @@ end
 
 def check_status(har)
   begin
-    har = parse_har_file(file)
+    har = parse_har_file(har)
   rescue RuntimeError => e
     return :invalid
   end
