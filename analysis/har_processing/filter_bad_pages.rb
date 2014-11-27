@@ -5,7 +5,6 @@ require_relative 'har_util.rb'
 
 def valid_wpr(wpr_archive, url)
   httparchive_path = "#{File.dirname(File.expand_path(File.dirname(__FILE__)))}/wpr/httparchive.py"
-  puts httparchive_path
   `#{httparchive_path} ls #{wpr_archive}`.each_line do |line|
     if line =~ /#{url}/
       return true
