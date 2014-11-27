@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
-require 'har_util.rb'
+require_relative 'har_util.rb'
 
 httparchive_path = "#{File.dirname(File.dirname(__FILE__))}/wpr/httparchive.py"
 
@@ -49,12 +49,7 @@ if __FILE__ == $0
   Dir.glob("#{har_directory}/*.har").each do |original_load|
     url = decode_b64(File.basename(original_load))
 
-    [original_har_path,
-     wpr_archive,
-     pc_wpr_archive,
-     err,
-     all_replays,
-     all_replay_errs] = get_all_files_for_original_har(original_load)
+    original_har_path, wpr_archive, pc_wpr_archive, err, all_replays, all_replay_errs = get_all_files_for_original_har(original_load)
 
     if not valid_wpr(wpr_archive, url)
       # If the WPR isn't valid, nothing else will be.
@@ -104,5 +99,5 @@ if __FILE__ == $0
     end
   end
 
-  [invalid_wprs, valid, invalid_loads].each do { |f| f.close }
+  [invalid_wprs, valid, invalid_loads].each { |f| f.close }
 end

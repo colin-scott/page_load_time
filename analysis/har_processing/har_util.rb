@@ -41,11 +41,12 @@ def get_all_files_for_original_har(original_har_path)
   all_replay_errs = []
   # XXX
   num_replays = 1
-  for i in xrange(1, num_replays+1):
+  (1..num_replays).each do |i|
     all_replays << "#{replay_dir}/#{b64}.#{i}.har"
     all_replays << "#{replay_dir}/#{b64}.pc.#{i}.har"
     all_replay_errs << "#{replay_dir}/#{b64}.#{i}.err"
     all_replay_errs << "#{replay_dir}/#{b64}.pc.#{i}.err"
+  end
 
   # N.B. last two elements are lists
   return [original_har_path,
