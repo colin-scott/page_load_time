@@ -25,6 +25,10 @@ def extract_cacheable_bytes(har)
   page = har['log']['pages'][0]
   url = page['id']
   cacheable_bytes_fraction = total_cacheable_bytes * 1.0 / total_bytes_in
+  if cacheable_bytes_fraction.to_s =~ /e/
+    # If it's so small we need to use scientific notation, consider it 0.
+    cacheable_bytes_fraction = 0.0
+  end
   puts "#{url} #{cacheable_bytes_fraction} #{total_cacheable_bytes} #{total_bytes_in}"
 end
 

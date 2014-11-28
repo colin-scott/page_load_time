@@ -31,7 +31,7 @@ end
 File.foreach(cacheable_input) do |line|
   url, cacheable_bytes_fraction, _, _ = line.chomp.split
   cacheable_bytes_fraction = cacheable_bytes_fraction.to_f
-  url2reduction[url] = cacheable_bytes_fraction
+  url2cacheable[url] = cacheable_bytes_fraction
 end
 
 # Now join:
