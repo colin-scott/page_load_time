@@ -105,5 +105,7 @@ while experiment_group = itr.next_experiment_group
   if unmodified_median > pc_median
     fraction_reduction = ((unmodified_median - pc_median) / unmodified_median)
     puts "#{experiment_group.url} #{fraction_reduction}"
+  else
+    $stderr.puts "unmodified_median > pc_median #{experiment_group.url}"
   end
 end

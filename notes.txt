@@ -1,6 +1,14 @@
 ---------------- TODO: ------------------
 
-- Filter out bad wprs and bad replays
+- Sort the order replays are performed, so that .pcs are performed directly
+  after unomdified replays.
+
+- When fetching, if wpr is empty (4KB) or HAR fails, raise.
+
+- only feed in valid wprs to the replay pipeline.
+
+- It doesn't make sense that wpr acrhive would be non-empty, yet the original
+  HAR is empty...
 
 - Balance data
 
@@ -38,7 +46,6 @@ cd ../analysis
 ./cleanse_hars.rb ../data/replay
 
 # Graphs:
-cd ../analysis
 
 #   Cacheable bytes
 ./har_processing/extract_cacheable_bytes.rb \
@@ -60,7 +67,7 @@ less plt_comparison.dat
 
 #   PLT Reduction
 ./graphs/percent_plt_reduction/compute_median_reduction.rb \
-  replay_plts.dat > median_plt_reduction.dat
+  replay_plts.dat > median_plt_reduction.dat 2 > plt_got_worse.dat
 (cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.dat)
 
 #   Ratio Cacheable bytes: PLT Reduction
