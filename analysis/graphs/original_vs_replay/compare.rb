@@ -26,7 +26,7 @@ end
 File.foreach(replay_plts_file) do |line|
   filename, url, percent_reduction = line.chomp.split
   percent_reduction = percent_reduction.to_f
-  if (filename =~ /.pc.\d+.har$/
+  if (filename =~ /.pc.\d+.har$/)
     url2pcs[url] << percent_reduction
   else
     url2replays[url] << percent_reduction
