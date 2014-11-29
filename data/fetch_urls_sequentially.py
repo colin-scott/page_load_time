@@ -12,6 +12,10 @@ if os.geteuid() != 0:
   print "Must run as root"
   sys.exit(1)
 
+phantomjs_path = "phantomjs"
+if os.path.exists("/home/cs/local/bin/phantomjs"):
+  phantomjs_path = "/home/cs/local/bin/phantomjs"
+
 def fetch(url):
   print "Fetching ", url
   filename = FileSafeName(url)
@@ -19,8 +23,8 @@ def fetch(url):
   phantomjs_err = "wpr/" + filename + ".err"
   har_output = "har/" + filename + ".har"
   with wpr.ReplayServer(wpr_output, replay_options=["--record"]):
-    subprocess.Popen("phantomjs --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
-                     (url, har_output, phantomjs_err), shell=True)
+    subprocess.Popen("%s --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
+                     (phantomjs_path, url, har_output, phantomjs_err), shell=True)
 
 with open("target_urls") as f:
   for url in f:
