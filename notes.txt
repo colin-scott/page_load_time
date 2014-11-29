@@ -1,11 +1,8 @@
 ---------------- TODO: ------------------
 
-- Sort the order replays are performed, so that .pcs are performed directly
-  after unomdified replays.
+- Figure out why fetches failed, even on c5.
 
 - When fetching, if wpr is empty (4KB) or HAR fails, raise.
-
-- only feed in valid wprs to the replay pipeline.
 
 - It doesn't make sense that wpr acrhive would be non-empty, yet the original
   HAR is empty...

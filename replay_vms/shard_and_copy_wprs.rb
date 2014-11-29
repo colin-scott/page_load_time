@@ -53,8 +53,9 @@ def correct_splits!(splits)
 end
 
 if __FILE__ == $0
-  if ARGV.length != 1
-    puts "#{__FILE__} <directory containing wpr archives>"
+  if ARGV.length != 2
+    # Second arg can be an empty file
+    puts "#{__FILE__} <directory containing wpr archives> <invalid_wprs.txt, output of filter_bad_pages.rb>"
     exit 1
   end
 
@@ -64,11 +65,18 @@ if __FILE__ == $0
          "10.9.1.4",
          "10.9.1.5"]
 
-  # split up inputs
   dir = ARGV.shift
+  blacklist_file = ARGV.shift
+  blacklist = Set.new
+  File.foreach(blacklist_file) do |line|
+    blacklist.add File.basename line.chomp
+  end
+
+  # split up inputs
   Dir.chdir File.dirname(dir) do
-    all_files = Dir.glob("#{File.basename(dir)}/*.wpr").sort
-    splits = split_list(all_files, vms.length)
+    all_files = Dir.glob("#{File.basename(dir)}/*.wpr")
+    all_valid_files = all_files.select { |f| not blacklist.include? f }.sort
+    splits = split_list(all_valid_files, vms.length)
     # Make sure that .pc experiments are together with the original
     correct_splits!(splits)
 

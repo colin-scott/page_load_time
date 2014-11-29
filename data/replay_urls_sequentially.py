@@ -36,17 +36,25 @@ def replay(wpr_archive, url, filename, num_replays=1):
     exponential_backoff(execute_replay)
 
 if __name__ == '__main__':
+  # Second arg can be an empty file.
   option_parser = optparse.OptionParser(
-      usage='%prog <directory containing wpr files>')
+      usage='%prog <directory containing wpr files> <valids.txt, output of filter_bad_pages.rb>')
 
   options, args = option_parser.parse_args()
 
-  if len(args) < 1:
+  if len(args) < 2:
     print 'args: %s' % args
-    option_parser.error('Must specify a directory containing wpr files')
+    option_parser.error('Must specify a directory containing wpr files, and valids.txt')
 
-  for wpr_archive in glob.iglob(args[0] + "/*.wpr"):
+  whitelist_file = args[1]
+  url_whitelist = set()
+  with open(whitelist_file) as f:
+    for line in iter(f):
+      url_whitelist.add(line.chomp().split()[0])
+
+  for wpr_archive in glob.glob(args[0] + "/*.wpr").sort:
     filename = re.sub(".wpr$", "", os.path.basename(wpr_archive))
     b64_name = re.sub(".pc$", "", filename)
     url = DecodeURL(b64_name)
-    replay(wpr_archive, url, filename)
+    if url not in url_whitelist:
+      replay(wpr_archive, url, filename)

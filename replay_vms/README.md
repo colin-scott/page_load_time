@@ -11,6 +11,6 @@ vagrant up
 analysis/wpr/modify_wpr_delays.py data/wpr
 
 # Then:
-./shard_and_copy_wprs.rb ../data/wpr
+./shard_and_copy_wprs.rb ../data/wpr ../data/filtered_stats/invalid_wprs.txt
 ./start_parallel_replays.sh
 
