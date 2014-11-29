@@ -23,9 +23,10 @@ def replay(wpr_archive, url, filename, num_replays=1):
     print "Replay #%d %s" % (replay, url)
     phantomjs_err = "replay/%s.%d.err" % (filename, replay)
     replay_output = "replay/%s.%d.har" % (filename, replay)
-    if os.path.exists(replay_output):
-      print "Replay file %s already exists" % replay_output
-      return
+    # TODO(cs); should really check if har exists *and* is valid.
+    #if os.path.exists(replay_output):
+    #  print "Replay file %s already exists" % replay_output
+    #  return
     def execute_replay():
       replay_options = ["--use_server_delay", "--use_closest_match"]
       with wpr.ReplayServer(wpr_archive, replay_options=replay_options):
