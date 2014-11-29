@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'set'
+
 def split_list(l, split_ways)
   # Split our inputs into split_ways separate lists
   if split_ways < 1
