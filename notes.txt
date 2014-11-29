@@ -1,6 +1,11 @@
 ---------------- TODO: ------------------
 
 - Figure out why fetches failed, even on c5.
+   -> 131 caused phantomjs to crash.
+   -> 160 replays caused phantomjs to crash
+   -> A fair number of CannotAllocateMemory errors, due to runaway processes?
+
+- Don't have telemetry write to a single log file for all fetches.
 
 - When fetching, if wpr is empty (4KB) or HAR fails, raise.
 
