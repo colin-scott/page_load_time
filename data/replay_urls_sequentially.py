@@ -52,7 +52,7 @@ if __name__ == '__main__':
     for line in iter(f):
       url_whitelist.add(line.split()[0])
 
-  for wpr_archive in glob.glob(args[0] + "/*.wpr").sort():
+  for wpr_archive in sorted(glob.glob(args[0] + "/*.wpr")):
     filename = re.sub(".wpr$", "", os.path.basename(wpr_archive))
     b64_name = re.sub(".pc$", "", filename)
     url = DecodeURL(b64_name)
