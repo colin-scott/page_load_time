@@ -65,6 +65,11 @@ cd ../analysis
   original_plts.dat replay_plts.dat > plt_comparison.dat
 less plt_comparison.dat
 
+# Raw PLTs
+egrep '.pc.1.har ' replay_plts.dat > perfect_cache_replay_plts.dat
+egrep -v '.pc.1.har ' replay_plts.dat > unmodified_replay_plts.dat
+(cd ./graphs/plts/; ./generate_cdf_from_raw_data.sh ../../unmodified_replay_plts.dat ../../perfect_cache_replay_plts.dat)
+
 #   PLT Reduction
 ./graphs/percent_plt_reduction/compute_median_reduction.rb \
   replay_plts.dat > median_plt_reduction.dat 2>plt_got_worse.dat

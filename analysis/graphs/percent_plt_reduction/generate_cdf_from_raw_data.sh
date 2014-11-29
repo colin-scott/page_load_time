@@ -8,3 +8,4 @@ fi
 cut -d ' ' -f2 $1 | sort -n > buf && mv buf percent_reduction.dat
 ~/Scripts/cdf/compile_ccdf.pl percent_reduction.dat > percent_reduction.cdf
 gnuplot percent_reduction.gpi
+gnuplot percent_reduction_linear.gpi

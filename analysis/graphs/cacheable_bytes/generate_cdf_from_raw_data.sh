@@ -11,3 +11,4 @@ fi
 cut -d ' ' -f 2 $1 | sort -n > cacheable_bytes.cdf
 ~/Scripts/cdf/compile_ccdf.pl cacheable_bytes.cdf > buf && mv buf cacheable_bytes.cdf
 gnuplot cacheable_bytes.gpi
+gnuplot cacheable_bytes_linear.gpi

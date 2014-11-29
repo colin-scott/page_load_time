@@ -1,5 +1,7 @@
 # Note you need gnuplot 4.4 for the pdfcairo terminal.
 
+# XXX NOTE: need to chop off past 99th percentile
+
 set terminal pdf font "Helvetica, 8" linewidth 4
 
 # Line style for axes
@@ -17,8 +19,8 @@ set border 3 back linestyle 80 # Remove border on top and right.  These
 set xtics nomirror
 set ytics nomirror
 
-set log x
-set mxtics 10    # Makes logscale look good.
+#set log x
+#set mxtics 10    # Makes logscale look good.
 
 # Line styles: try to pick pleasing colors, rather
 # than strictly primary colors or hard-to-see colors
@@ -34,9 +36,9 @@ set key top left
 set ylabel "CDF of web pages"
 set xlabel "Fraction Cacheable Bytes : Fraction PLT Reduction"
 
-set yrange [0:]
-# set xrange [1:30]
+set yrange [0:0.95]
+set xrange [1:10]
 # set log x
 
-set output "ratio.pdf"
+set output "ratio_linear.pdf"
 plot 'ratio.cdf' using 1:2 title "" w l ls 1

@@ -17,8 +17,8 @@ set border 3 back linestyle 80 # Remove border on top and right.  These
 set xtics nomirror
 set ytics nomirror
 
-set log x
-set mxtics 10    # Makes logscale look good.
+#set log x
+#set mxtics 10    # Makes logscale look good.
 
 # Line styles: try to pick pleasing colors, rather
 # than strictly primary colors or hard-to-see colors
@@ -29,14 +29,15 @@ set style line 2 lt rgb "#A00000" lw 2# pt 1
 set style line 1 lt rgb "#5060D0" lw 2# pt 2
 set style line 4 lt rgb "#F25900" lw 2# pt 9
 
-set key top left
+set key bottom right
 
-set ylabel "CDF of web pages"
-set xlabel "Fraction Cacheable Bytes : Fraction PLT Reduction"
+set ylabel "CDF web pages"
+set xlabel "Page Load Time, Milliseconds"
 
 set yrange [0:]
-# set xrange [1:30]
+set xrange [:10000]
 # set log x
 
-set output "ratio.pdf"
-plot 'ratio.cdf' using 1:2 title "" w l ls 1
+set output "plts.pdf"
+plot 'unmodified_plt.cdf' using 1:2 title "Unmodified Replays" w l ls 1, \
+     'perfect_cache_plt.cdf' using 1:2 title "Perfect Cache Replays" w l ls 2

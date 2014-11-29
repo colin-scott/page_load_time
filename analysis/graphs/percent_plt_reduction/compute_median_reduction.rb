@@ -102,10 +102,9 @@ while experiment_group = itr.next_experiment_group
   next if not experiment_group.valid?
   pc_median = experiment_group.get_pc_median * 1.0
   unmodified_median = experiment_group.get_unmodified_median * 1.0
-  if unmodified_median > pc_median
-    fraction_reduction = ((unmodified_median - pc_median) / unmodified_median)
-    puts "#{experiment_group.url} #{fraction_reduction}"
-  else
-    $stderr.puts "unmodified_median > pc_median #{experiment_group.url}"
+  fraction_reduction = ((unmodified_median - pc_median) / unmodified_median)
+  puts "#{experiment_group.url} #{fraction_reduction}"
+  if unmodified_median < pc_median
+    $stderr.puts "unmodified_median < pc_median #{experiment_group.url}"
   end
 end
