@@ -4,11 +4,12 @@ require_relative 'har_util.rb'
 
 if __FILE__ == $0
   if ARGV.length != 1
-    puts "#{__FILE__} <directory containing HARs>"
+    puts "#{__FILE__} <input list>"
     exit 1
   end
 
-  Dir.glob(ARGV.shift + "/*.har").each do |file|
+  File.foreach(ARGV.shift) do |file|
+    file = file.chomp
     begin
       har = parse_har_file(file)
       if passes_sanity_check(har)

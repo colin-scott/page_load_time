@@ -89,7 +89,7 @@ if __FILE__ == $0
     exit 1
   end
 
-  har_directory = ARGV.shift
+  har_directory = File.expand_path(ARGV.shift)
   data_dir = File.dirname((File.expand_path(har_directory)))
 
   # Where we place bad files

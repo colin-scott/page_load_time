@@ -47,11 +47,18 @@ sudo ./replay_urls_sequentially.py ./data/wpr
 cd ../analysis
 ./cleanse_hars.rb ../data/replay
 
+# Sanity check:
+./har_processing/filter_bad_pages.rb ../data/har
+
 # Graphs:
+# First filter
+cut -d ' ' -f 2 ../data/filtered_stats/valids.txt > valid_originals.txt
+./har_processing/get_replays_from_originals.rb \
+  valid_originals.txt > valid_replays.txt
 
 #   Cacheable bytes
 ./har_processing/extract_cacheable_bytes.rb \
-  ../data/replay | sort | uniq > cacheable_bytes.dat
+  valid_originals.txt | sort | uniq > cacheable_bytes.dat
 (cd ./graphs/cacheable_bytes/; ./generate_cdf_from_raw_data.sh ../../cacheable_bytes.dat)
 
 #   Total bytes
@@ -60,9 +67,9 @@ cd ../analysis
 # Sanity check PLT difference between original and replays
 #      (sanity check replays that took too long)
 ./har_processing/extract_plt.rb \
-  ../data/replay > replay_plts.dat
+  valid_originals.txt > original_plts.dat
 ./har_processing/extract_plt.rb \
-  ../data/har > original_plts.dat
+  valid_replays.txt > replay_plts.dat
 ./graphs/original_vs_replay/compare.rb \
   original_plts.dat replay_plts.dat > plt_comparison.dat
 less plt_comparison.dat
@@ -74,7 +81,7 @@ egrep -v '.pc.1.har ' replay_plts.dat > unmodified_replay_plts.dat
 
 #   PLT Reduction
 ./graphs/percent_plt_reduction/compute_median_reduction.rb \
-  replay_plts.dat > median_plt_reduction.dat 2>plt_got_worse.dat
+    replay_plts.dat > median_plt_reduction.dat 2>plt_got_worse.dat
 (cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.dat)
 
 #   Ratio Cacheable bytes: PLT Reduction
