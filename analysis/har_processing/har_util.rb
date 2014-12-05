@@ -37,15 +37,17 @@ def get_all_files_for_original_har(original_har_path)
 
   # Replay files:
   replay_dir = "#{data_dir}/replay"
-  all_replays = []
-  all_replay_errs = []
+  unmodified_replays = []
+  unmodified_errs = []
+  pc_replays = []
+  pc_errs = []
   # XXX
   num_replays = 1
   (1..num_replays).each do |i|
-    all_replays << "#{replay_dir}/#{b64}.#{i}.har"
-    all_replays << "#{replay_dir}/#{b64}.pc.#{i}.har"
-    all_replay_errs << "#{replay_dir}/#{b64}.#{i}.err"
-    all_replay_errs << "#{replay_dir}/#{b64}.pc.#{i}.err"
+    unmodified_replays << "#{replay_dir}/#{b64}.#{i}.har"
+    pc_replays << "#{replay_dir}/#{b64}.pc.#{i}.har"
+    unmodified_errs << "#{replay_dir}/#{b64}.#{i}.err"
+    pc_errs << "#{replay_dir}/#{b64}.pc.#{i}.err"
   end
 
   # N.B. last two elements are lists
@@ -53,8 +55,20 @@ def get_all_files_for_original_har(original_har_path)
           wpr_archive,
           pc_wpr_archive,
           err,
-          all_replays,
-          all_replay_errs]
+          unmodified_replays,
+          unmodified_errs,
+          pc_replays,
+          pc_errs]
+end
+
+def get_num_404s(har)
+  total = 0
+  har['log']['entries'].each do |entry|
+    if entry['response']['status'].to_i == 404
+      total += 1
+    end
+  end
+  total
 end
 
 def passes_sanity_check(har)
@@ -70,10 +84,7 @@ def passes_sanity_check(har)
     end
   end
 
-  return false if total_bytes_in == 0
-  # 404 not found
-  return false if total_bytes_in == 13
-  return true
+  return total_bytes_in != 0
 end
 
 def is_cacheable(response)

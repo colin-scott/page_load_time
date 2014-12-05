@@ -13,7 +13,33 @@ def valid_wpr(wpr_archive, url)
   return false
 end
 
-def check_status(har)
+def get_status_for_replays(all_replays, original_404s)
+  overall_replay_status = nil
+  all_replays.each do |replay_har|
+    replay_status = check_status(replay_har, original_404s)
+    # :ok > :mismatched_404s > :no_responses > :invalid
+    if replay_status == :ok
+      overall_replay_status = :ok
+      break
+    end
+
+    if replay_status == :mismatched_404s
+      overall_replay_status = :mismatched_404s
+    end
+
+    if replay_status == :no_responses and overall_replay_status != :mismatched_404s
+      overall_replay_status = :no_responses
+    end
+
+    if replay_status == :invalid and overall_replay_status != :no_responses and overall_replay_status != :mismatched_404s
+      overall_replay_status = :invalid
+    end
+  end
+end
+
+# TODO(cs): allow espilon difference in number of 404s.
+
+def check_status(har, original_404s)
   begin
     har = parse_har_file(har)
   rescue RuntimeError => e
@@ -22,6 +48,10 @@ def check_status(har)
 
   if not passes_sanity_check(har)
     return :no_responses
+  end
+
+  if not original_404s.nil? and get_num_404s(har) != original_404s
+    return :mismatched_404s
   end
 
   return :ok
@@ -49,7 +79,7 @@ if __FILE__ == $0
     puts original_load
     url = decode_b64(File.basename(original_load.gsub(/.har$/, "")))
 
-    original_har_path, wpr_archive, pc_wpr_archive, err, all_replays, all_replay_errs = get_all_files_for_original_har(original_load)
+    original_har_path, wpr_archive, pc_wpr_archive, err, unmodified_replays, unmodified_errs, pc_replays, pc_errs = get_all_files_for_original_har(original_load)
 
     if not valid_wpr(wpr_archive, url)
       # If the WPR isn't valid, nothing else will be.
@@ -61,41 +91,27 @@ if __FILE__ == $0
       next
     end
 
-    all_replays = all_replays.find_all { |r| File.exist? r }
-    # If we don't have the replays yet, too soon to diagnose
-    next if all_replays.empty?
+    # If we don't have at least one replay for each experiment yet, too soon to diagnose
+    unmodified_replays = unmodified_replays.find_all { |r| File.exist? r }
+    next if unmodified_replays.empty?
+    pc_replays = pc_replays.find_all { |r| File.exist? r }
+    next if pc_replays.empty?
 
-    original_status = check_status(original_har_path)
+    # Check the original fetch
+    original_status = check_status(original_har_path, nil)
+    total_404s = get_num_404s(original_har_path)
 
-    overall_replay_status = nil
-    all_replays.each do |replay_har|
-      replay_status = check_status(replay_har)
-      if replay_status == :ok
-        overall_replay_status = :ok
-        break
-      end
-      if replay_status == :invalid and overall_replay_status != :no_responses
-        overall_replay_status = :invalid
-      end
-      if replay_status == :no_responses
-        overall_replay_status = :no_responses
-      end
-    end
+    # Check the replays.
+    unmodified_status = get_status_of_replays(unmodified_replays, total_404s)
+    pc_status = get_status_of_replays(pc_replays, total_404s)
 
-    if original_status == :ok and overall_replay_status == :ok
+    # If the original, and at least one PC and one unmodified replay are OK, then we say the
+    # whole set is OK.
+
+    if original_status == :ok and unmodified_status == :ok and pc_status == :ok
       valid.puts "#{url} #{original_har_path}"
     else
-      # A few cases:
-      #   - original valid, replays valid
-      #   - original valid, replays invalid
-      #   - original valid, replays no_responses
-      #   - original invalid, replays valid
-      #   - original invalid, replays invalid
-      #   - original invalid, replays no_responses
-      #   - original no_responses, replays valid
-      #   - original no_responses, replays invalid
-      #   - original no_responses, replays no_responses
-      invalid_loads.puts "#{original_status} #{overall_replay_status} #{url} #{original_har_path}"
+      invalid_loads.puts "#{original_status} #{unmodified_status} #{pc_status} #{url} #{original_har_path}"
     end
   end
 
