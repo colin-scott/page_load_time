@@ -13,48 +13,70 @@ def valid_wpr(wpr_archive, url)
   return false
 end
 
-def get_status_of_replays(all_replays, original_404s)
-  overall_replay_status = nil
-  all_replays.each do |replay_har|
-    replay_status = check_status(replay_har, original_404s)
-    # :ok > :mismatched_404s > :no_responses > :invalid
-    if replay_status == :ok
-      overall_replay_status = :ok
-      break
-    end
-
-    if replay_status == :mismatched_404s
-      overall_replay_status = :mismatched_404s
-    end
-
-    if replay_status == :no_responses and overall_replay_status != :mismatched_404s
-      overall_replay_status = :no_responses
-    end
-
-    if replay_status == :invalid and overall_replay_status != :no_responses and overall_replay_status != :mismatched_404s
-      overall_replay_status = :invalid
-    end
-  end
-end
+# def get_status_of_replays(all_replays_infos, original_info)
+#   overall_replay_status = nil
+#   all_replays_infos.each do |replay_status|
+#     replay_status = replay_status.get_status
+#     # :ok > :mismatched_404s > :no_responses > :invalid
+#     if replay_status == :ok
+#       overall_replay_status = :ok
+#       break
+#     end
+#
+#     if replay_status == :mismatched_404s
+#       overall_replay_status = :mismatched_404s
+#     end
+#
+#     if replay_status == :no_responses and overall_replay_status != :mismatched_404s
+#       overall_replay_status = :no_responses
+#     end
+#
+#     if replay_status == :invalid and overall_replay_status != :no_responses and overall_replay_status != :mismatched_404s
+#       overall_replay_status = :invalid
+#     end
+#   end
+#   overall_replay_status
+# end
 
 # TODO(cs): allow espilon difference in number of 404s.
 
-def check_status(har, original_404s)
-  begin
-    har = parse_har_file(har)
-  rescue RuntimeError => e
-    return :invalid
+class LoadInfo
+  def initialize(har_path)
+    @status = nil
+    @num_404s = nil
+
+    begin
+      @har = parse_har_file(har_path)
+    rescue RuntimeError => e
+      @status = :invalid
+    end
   end
 
-  if not passes_sanity_check(har)
-    return :no_responses
+  def get_total_404s
+    if @num_404s.nil?
+      @num_404s = get_num_404s(@har)
+    end
+    @num_404s
   end
 
-  if not original_404s.nil? and get_num_404s(har) != original_404s
-    return :mismatched_404s
-  end
+  def get_status(original_404s)
+    if not @status.nil?
+      return @status
+    end
 
-  return :ok
+    if not passes_sanity_check(@har)
+      @status = :no_responses
+      return @status
+    end
+
+    if not original_404s.nil? and get_num_404s(@har) != original_404s
+      @status = :mismatched_404s
+      return @status
+    end
+
+    @status = :ok
+    return @status
+  end
 end
 
 if __FILE__ == $0
@@ -99,25 +121,26 @@ if __FILE__ == $0
     next if pc_replays.empty?
 
     # Check the original fetch
-    original_status = check_status(original_har_path, nil)
+    original_info = LoadInfo.new(original_har_path)
+    original_status = original_info.get_status(nil)
     if original_status != :ok
       invalid_originals.puts "#{original_har_path} #{original_status}"
       next
     end
 
-    total_404s = get_num_404s(parse_har_file(original_har_path))
-
     # Check the replays.
-    unmodified_status = get_status_of_replays(unmodified_replays, total_404s)
-    pc_status = get_status_of_replays(pc_replays, total_404s)
+    # XXX Assumes one replay per experiment
+    unmodified_info = LoadInfo.new(unmodified_replays[0])
+    unmodified_status = unmodified_info.get_status(original_info.get_total_404s)
+    pc_info = LoadInfo.new(pc_replays[0])
+    pc_status = pc_info.get_status(original_info.get_total_404s)
 
     # If the original, and at least one PC and one unmodified replay are OK, then we say the
     # whole set is OK.
-
     if original_status == :ok and unmodified_status == :ok and pc_status == :ok
       valid.puts "#{url} #{original_har_path}"
     else
-      invalid_loads.puts "#{original_status} #{unmodified_status} #{pc_status} #{url} #{original_har_path}"
+      invalid_loads.puts "#{url} #{original_status} #{original_info.get_total_404s} #{unmodified_status} #{unmodified_info.get_total_404s} #{pc_status} #{pc_info.get_total_404s} #{original_har_path}"
     end
   end
 
