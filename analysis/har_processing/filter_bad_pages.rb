@@ -53,6 +53,10 @@ class LoadInfo
   end
 
   def get_total_404s
+    if @status == :invalid
+      return nil
+    end
+
     if @num_404s.nil?
       @num_404s = get_num_404s(@har)
     end
