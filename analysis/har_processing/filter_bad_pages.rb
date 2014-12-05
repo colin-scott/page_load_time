@@ -72,6 +72,7 @@ if __FILE__ == $0
   filter_stats_directory = "#{data_dir}/filtered_stats"
 
   invalid_wprs = File.open("#{filter_stats_directory}/invalid_wprs.txt", "w")
+  invalid_originals = File.open("#{filter_stats_directory}/invalid_originals.txt", "w")
   valid = File.open("#{filter_stats_directory}/valids.txt", "w")
   invalid_loads = File.open("#{filter_stats_directory}/invalid_loads.txt", "w")
 
@@ -99,7 +100,12 @@ if __FILE__ == $0
 
     # Check the original fetch
     original_status = check_status(original_har_path, nil)
-    total_404s = get_num_404s(original_har_path)
+    if original_status != :ok
+      invalid_originals.puts "#{original_har_path} #{original_status}"
+      next
+    end
+
+    total_404s = get_num_404s(parse_har_file(original_har_path))
 
     # Check the replays.
     unmodified_status = get_status_of_replays(unmodified_replays, total_404s)
@@ -115,5 +121,5 @@ if __FILE__ == $0
     end
   end
 
-  [invalid_wprs, valid, invalid_loads].each { |f| f.close }
+  [invalid_wprs, invalid_originals, valid, invalid_loads].each { |f| f.close }
 end
