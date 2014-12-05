@@ -13,7 +13,7 @@ def valid_wpr(wpr_archive, url)
   return false
 end
 
-def get_status_for_replays(all_replays, original_404s)
+def get_status_of_replays(all_replays, original_404s)
   overall_replay_status = nil
   all_replays.each do |replay_har|
     replay_status = check_status(replay_har, original_404s)
