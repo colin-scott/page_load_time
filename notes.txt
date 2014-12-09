@@ -42,6 +42,11 @@ sudo ./data/fetch_urls_sequentially.py
 cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
 # For a parallel version of replay, see ./replay_vms/README.md
+
+# TODO(cs): write a version of filter_bad_pages.rb that only acts on original
+# fetches, so that we can feed a valids.txt input list to
+# replay_urls_sequentially.py
+
 cd data
 sudo ./replay_urls_sequentially.py ./data/wpr
 cd ../analysis

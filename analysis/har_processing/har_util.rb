@@ -74,6 +74,8 @@ end
 def passes_sanity_check(har)
   # TODO(cs): completely redundant with extract_cacheable_bytes.rb
   total_bytes_in = 0
+  total_responses = 0
+  total_non_200s = 0
   har['log']['entries'].each do |entry|
     ['headersSize', 'bodySize'].each do |part|
       if entry['response'][part].nil?
@@ -81,10 +83,22 @@ def passes_sanity_check(har)
       elsif entry['response'][part] != -1
         total_bytes_in += entry['response'][part]
       end
+      total_responses += 1
+      if entry['response']['status'].to_i != 200
+        total_non_200s += 1
+      end
     end
   end
 
-  return total_bytes_in != 0
+  if total_bytes_in == 0
+    return false
+  end
+
+  if total_responses == total_non_200s
+    return false
+  end
+
+  return true
 end
 
 def is_cacheable(response)
