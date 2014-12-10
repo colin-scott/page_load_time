@@ -118,12 +118,6 @@ if __FILE__ == $0
       next
     end
 
-    # If we don't have at least one replay for each experiment yet, too soon to diagnose
-    unmodified_replays = unmodified_replays.find_all { |r| File.exist? r }
-    next if unmodified_replays.empty?
-    pc_replays = pc_replays.find_all { |r| File.exist? r }
-    next if pc_replays.empty?
-
     # Check the original fetch
     original_info = LoadInfo.new(original_har_path)
     original_status = original_info.get_status(nil)
@@ -131,6 +125,12 @@ if __FILE__ == $0
       invalid_originals.puts "#{original_har_path} #{original_status}"
       next
     end
+
+    # If we don't have at least one replay for each experiment yet, too soon to diagnose
+    unmodified_replays = unmodified_replays.find_all { |r| File.exist? r }
+    next if unmodified_replays.empty?
+    pc_replays = pc_replays.find_all { |r| File.exist? r }
+    next if pc_replays.empty?
 
     # Check the replays.
     # XXX Assumes one replay per experiment
