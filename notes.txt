@@ -41,18 +41,19 @@ cd data
 sudo ./data/fetch_urls_sequentially.py
 cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
+
+# Sanity check, over just original fetches and wprs:
+./har_processing/filter_bad_pages.rb ../data/har
+
 # For a parallel version of replay, see ./replay_vms/README.md
-
-# TODO(cs): write a version of filter_bad_pages.rb that only acts on original
-# fetches, so that we can feed a valids.txt input list to
-# replay_urls_sequentially.py
-
 cd data
 sudo ./replay_urls_sequentially.py ./data/wpr
 cd ../analysis
 ./cleanse_hars.rb ../data/replay
 
-# Sanity check:
+# Run the sanity check again, this time over replays as well
+# TODO(cs): split filter_bad_pages into two scripts so we don't repeat the
+# sanity checks for wprs.
 ./har_processing/filter_bad_pages.rb ../data/har
 
 # Graphs:

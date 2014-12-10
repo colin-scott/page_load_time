@@ -97,10 +97,14 @@ if __FILE__ == $0
   # Where we place stats on the number of bad files
   filter_stats_directory = "#{data_dir}/filtered_stats"
 
+  # target URL doesn't show up in WPR archive:
   invalid_wprs = File.open("#{filter_stats_directory}/invalid_wprs.txt", "w")
+  # Empty response body, or nothing but non-200s:
   invalid_originals = File.open("#{filter_stats_directory}/invalid_originals.txt", "w")
-  valid = File.open("#{filter_stats_directory}/valids.txt", "w")
+  # At least one replay was screwed up:
   invalid_loads = File.open("#{filter_stats_directory}/invalid_loads.txt", "w")
+  # Valid for both original fetch and all replays:
+  valid = File.open("#{filter_stats_directory}/valids.txt", "w")
 
   Dir.glob("#{har_directory}/*.har").each do |original_load|
     puts original_load

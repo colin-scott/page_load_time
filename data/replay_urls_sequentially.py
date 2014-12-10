@@ -39,19 +39,20 @@ def replay(wpr_archive, url, filename, num_replays=1):
 if __name__ == '__main__':
   # Second arg can be an empty file.
   option_parser = optparse.OptionParser(
-      usage='%prog <directory containing wpr files> <valids.txt, output of filter_bad_pages.rb>')
+      usage='%prog <directory containing wpr files> [optionally: valids.txt]')
 
   options, args = option_parser.parse_args()
 
-  if len(args) < 2:
+  if len(args) < 1:
     print 'args: %s' % args
-    option_parser.error('Must specify a directory containing wpr files, and valids.txt')
+    option_parser.error('Must specify a directory containing wpr files, and optionally valids.txt')
 
-  whitelist_file = args[1]
   url_whitelist = set()
-  with open(whitelist_file) as f:
-    for line in iter(f):
-      url_whitelist.add(line.split()[0])
+  if len(args) == 2:
+    whitelist_file = args[1]
+    with open(whitelist_file) as f:
+      for line in iter(f):
+        url_whitelist.add(line.split()[0])
 
   for wpr_archive in sorted(glob.glob(args[0] + "/*.wpr")):
     filename = re.sub(".wpr$", "", os.path.basename(wpr_archive))
