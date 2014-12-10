@@ -77,6 +77,7 @@ cut -d ' ' -f 2 ../data/filtered_stats/valids.txt > valid_originals.txt
   valid_replays.txt > replay_plts.dat
 ./graphs/original_vs_replay/compare.rb \
   original_plts.dat replay_plts.dat > plt_comparison.dat
+(cd ./graphs/plt_comparison/; ./generate_cdf_from_raw_data.sh ../../plt_comparison.dat)
 less plt_comparison.dat
 
 # Raw PLTs
