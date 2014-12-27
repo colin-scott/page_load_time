@@ -1,34 +1,3 @@
----------------- TODO: ------------------
-
-- Figure out why fetches failed, even on c5.
-   -> 131 caused phantomjs to crash.
-   -> 160 replays caused phantomjs to crash
-   -> A fair number of CannotAllocateMemory errors, due to runaway processes?
-
-- Don't have telemetry write to a single log file for all fetches.
-
-- When fetching, if wpr is empty (4KB) or HAR fails, raise.
-
-- It doesn't make sense that wpr acrhive would be non-empty, yet the original
-  HAR is empty...
-
-- Balance data
-
-- Increase parallelization
-
-- Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
-  took ~1 sec.
-
-- Graph difference between original PLT and replay PLT?
-
----------------- Questions: ------------------
-
-Would it be advantageous to have PhantomJS emulate a particular browser? (Is
-that possible?)
-
-Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
-practice? Obviously not 100%, as we're assuming for the analysis.
-
 --------------- Installation: --------------
 
 brew update && brew install phantomjs
@@ -96,6 +65,38 @@ egrep -v '.pc.1.har ' replay_plts.dat > unmodified_replay_plts.dat
     median_plt_reduction.dat \
     cacheable_bytes.dat > ratio.dat
 (cd ./graphs/ratio_bytes_to_reduction/; ./generate_cdf_from_raw_data.sh ../../ratio.dat)
+
+---------------- TODO: ------------------
+
+- Figure out why fetches failed, even on c5.
+   -> 131 caused phantomjs to crash.
+   -> 160 replays caused phantomjs to crash
+   -> A fair number of CannotAllocateMemory errors, due to runaway processes?
+
+- Don't have telemetry write to a single log file for all fetches.
+
+- When fetching, if wpr is empty (4KB) or HAR fails, raise.
+
+- It doesn't make sense that wpr acrhive would be non-empty, yet the original
+  HAR is empty...
+
+- Balance data
+
+- Increase parallelization
+
+- Understand why replay (broken_wpr_log.txt) took 30 sec, whereas original
+  took ~1 sec.
+
+- Graph difference between original PLT and replay PLT?
+
+---------------- Questions: ------------------
+
+Would it be advantageous to have PhantomJS emulate a particular browser? (Is
+that possible?)
+
+Do we have an estimate on what cache hit ratio prefetch/preconnect achieve in
+practice? Obviously not 100%, as we're assuming for the analysis.
+
 
 
 
