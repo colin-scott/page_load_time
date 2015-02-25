@@ -17,13 +17,15 @@ TODO: Clean up path dependencies, move them to the top
 from subprocess import Popen, PIPE, STDOUT
 from sys import path
 import os
+import pickle
 
 CHROMIUM_SRC='/home/jamshed/src'
 
-def record(page_set, options='--browser=android-jb-system-chrome'):
+def record(page_set, url, options='--browser=android-jb-system-chrome'):
     """Runs wpr with telemetry to record an initial target page set
 
     :param page_set: str filename of the page set
+    :param url: str url used if url fails
     :param options: chromium browser options
     """
     record_path = os.path.join(CHROMIUM_SRC, 'tools/perf/record_wpr')
@@ -33,8 +35,9 @@ def record(page_set, options='--browser=android-jb-system-chrome'):
     # Check for errors
     assert p.returncode is None, '{0} returned an error: {1}'.format(page_set,
             p.returncode)
-    assert 'PASSED' in output, '{0} failed. See output below:\n{1}'.format(
-            page_set, output)
+    # Silently fail, push output to failed_urls
+    if 'PASSED' not in output:
+        failed_url(url, output)
 
 def get_urls(path):
     """Returns a list of urls from path
@@ -80,6 +83,20 @@ def modify_wpr():
             'third_party/webpagereplay/modify_wpr_delays.py')
     p = Popen('python {0} {1}'.format(wpr_path, wpr_directory), shell=True)
 
+def failed_url(url, output):
+    """Url failed to record, place it in failed_urls
+
+    :param url: str url
+    :param output: str output of the failure
+    """
+    try:
+        failed_set = pickle.load(open('failed_urls', 'a'))
+    except IOError:
+        failed_set = {}
+    failed_set[url] = output
+    pickle.dump(failed_set, open('failed_urls', 'a'))
+
+
 def __main__():
 
     # Setup
@@ -92,7 +109,7 @@ def __main__():
     # Record each one, measure plt
     for i in range(len(urls)):
         test_name = 'test{0}'.format(i)
-        record('{0}_page_set'.format(test_name))
+        record('{0}_page_set'.format(test_name), urls[i])
     # Move files here
     move_wpr_files('test*_page_set_*.wpr')
     # Modify wpr

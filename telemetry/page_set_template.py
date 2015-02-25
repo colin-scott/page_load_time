@@ -1,3 +1,7 @@
+"""Template page set file. Non functional python.
+
+Must fill in {0} with the name of the page set and {1} with the url
+"""
 from telemetry.page import page
 from telemetry.page import page_set
 
