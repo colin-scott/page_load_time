@@ -13,6 +13,7 @@ Notes:
 TODO: Make sure to only get the most recent wpr file when moving / modifying
 TODO: Clean up path dependencies, move them to the top
 """
+from base64 import b64encode
 from os import listdir, path
 from re import findall
 from subprocess import Popen, PIPE, STDOUT
@@ -451,12 +452,12 @@ def generate_hars():
                 curr_har_dict['log']['pages'][0]['id'] = key.host
                 curr_har_dict['log']['pages'][0]['title'] = key.host  # Set both
                 if '999999' in wpr_file:
-                    wpr_host = key.host + '_modified'
+                    wpr_host = b64encode(key.host) + '.pc'
                     # It's a modified wpr file
                     curr_har_dict['log']['pages'][0]['pageTimings']['onLoad'] \
                             = results_data[agg_key]['modified_cold_time']
                 else:
-                    wpr_host = key.host
+                    wpr_host = b64encode(key.host)
                     # It's an original wpr file
                     curr_har_dict['log']['pages'][0]['pageTimings']['onLoad'] \
                             = results_data[agg_key]['cold_time']
@@ -492,7 +493,7 @@ def generate_hars():
             raise KeyError('Could not find host in aggregate.db')
 
         har_path = '../data/har/'
-        file_name = har_path + wpr_host
+        file_name = har_path + wpr_host + '.1.har'
         with open(file_name, 'wb') as f:
             json.dump(curr_har_dict, f)
 
