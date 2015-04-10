@@ -17,9 +17,13 @@ from os import listdir, path
 from re import findall
 from subprocess import Popen, PIPE, STDOUT
 from sys import path
+import cPickle
+import json
 import os
 import pickle
 import re
+
+path.append('/home/jamshed/src/third_party/webpagereplay')
 
 CHROMIUM_SRC='/home/jamshed/src'
 
@@ -317,6 +321,7 @@ def reset_old_files():
         'rm -f '
         '/home/jamshed/page_load_time/telemetry/temp/benchmark_results.db',
         'rm -f /home/jamshed/page_load_time/telemetry/data/results.db',
+        'rm -f /home/jamshed/page_load_time/data/har/*',
             ]
 
     for cmd in commands:
@@ -392,6 +397,106 @@ def get_min_results():
 
     pickle.dump(min_data, open('data/results.db', 'wb'))
 
+def generate_hars():
+    """Merge plts and wprs into a har file
+
+    Stores 2 .har files per url in /home/jamshed/page_load_time/data/har/
+    One named with the original url, and one appended with '_modified'
+    """
+    results_path = \
+            '/home/jamshed/page_load_time/telemetry/data/results.db'
+    results_data = {}
+    try:
+        results_data = pickle.load(open(results_path, 'rb'))
+    except IOError:
+        raise IOError('Could not read from {0}'.format(results_path))
+
+    wpr_path = os.path.join(os.getcwd(), 'data/wpr_source')
+    wpr_files = filter(lambda x: '.wpr' in x, os.listdir(wpr_path))
+    for wpr_file in wpr_files:
+        curr_wpr = cPickle.load(open(os.path.join(wpr_path, wpr_file), 'rb'))
+        curr_har_dict = {'log':
+                            {'pages':
+                                [{'id': '',
+                                 'title': '',
+                                 'pageTimings': {
+                                        'onContentLoad': None,
+                                        'onLoad': None
+                                        }
+                                 }],
+                             'entries': []
+                            }
+                        }
+        tmp_entry = {
+                    'request': {
+                        'method': None,
+                        'url': None
+                        },
+                    'response': {
+                            'status': None,
+                            'headers': [],
+                            'headersSize': None,
+                            'bodySize': None
+                        }
+                }
+        wpr_host = None
+        for key, value_lst in zip(curr_wpr.keys(), curr_wpr.values()):
+            matches = [full_url for full_url in results_data.keys() if \
+                    key.host in full_url]
+            if matches:
+                assert len(matches) == 1, ('Found more than 1 match for'
+                        ' {0}'.format(matches))
+                agg_key = matches[0]
+                # Found a match!
+                curr_har_dict['log']['pages'][0]['id'] = key.host
+                curr_har_dict['log']['pages'][0]['title'] = key.host  # Set both
+                if '999999' in wpr_file:
+                    wpr_host = key.host + '_modified'
+                    # It's a modified wpr file
+                    curr_har_dict['log']['pages'][0]['pageTimings']['onLoad'] \
+                            = results_data[agg_key]['modified_cold_time']
+                else:
+                    wpr_host = key.host
+                    # It's an original wpr file
+                    curr_har_dict['log']['pages'][0]['pageTimings']['onLoad'] \
+                            = results_data[agg_key]['cold_time']
+            else:
+                # This website is loading a third party object
+                # Still include this in the har file
+                pass
+            # Add to each element to entries
+            # Request data
+            method = key.command
+            element_url = key.host + key.full_path
+            # Response data
+            status = value_lst.status
+            headerSize = 0  # Need to find this in value_lst
+            bodySize = 0  # Need to find this in value_lst
+            # Create each element's header list
+            tmp_header_lst = []
+            for name, value in value_lst.headers:
+                tmp_header_lst.append({'name': name, 'value': value})
+
+            curr_entry = tmp_entry.copy()
+            curr_entry['request']['method'] = method
+            curr_entry['request']['url'] = element_url
+            curr_entry['response']['status'] = status
+            curr_entry['response']['headers'] = tmp_header_lst
+            curr_entry['response']['headerSize'] = headerSize
+            curr_entry['response']['bodySize'] = bodySize
+
+            curr_har_dict['log']['entries'].append(curr_entry)
+
+        # Write to har file
+        if wpr_host is None:
+            raise KeyError('Could not find host in aggregate.db')
+
+        har_path = '../data/har/'
+        file_name = har_path + wpr_host
+        with open(file_name, 'wb') as f:
+            json.dump(curr_har_dict, f)
+
+
 def __main__():
 
     # Clean up old sessions
@@ -429,6 +534,7 @@ def __main__():
         trial_reset()
     get_min_results()
     # Convert benchmark results to har format
+    generate_hars()
     # Analysis
 
 if __name__ == '__main__':
