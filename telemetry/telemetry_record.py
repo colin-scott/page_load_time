@@ -428,18 +428,6 @@ def generate_hars():
                              'entries': []
                             }
                         }
-        tmp_entry = {
-                    'request': {
-                        'method': None,
-                        'url': None
-                        },
-                    'response': {
-                            'status': None,
-                            'headers': [],
-                            'headersSize': None,
-                            'bodySize': None
-                        }
-                }
         wpr_host = None
         for key, value_lst in zip(curr_wpr.keys(), curr_wpr.values()):
             matches = [full_url for full_url in results_data.keys() if \
@@ -476,14 +464,29 @@ def generate_hars():
             # Create each element's header list
             tmp_header_lst = []
             for name, value in value_lst.headers:
+                if 'content-length' in name:
+                    bodySize = int(value)
+                headerSize += len(name) + len(value)  # This should be verified
                 tmp_header_lst.append({'name': name, 'value': value})
 
+            tmp_entry = {
+                        'request': {
+                            'method': None,
+                            'url': None
+                            },
+                        'response': {
+                                'status': None,
+                                'headers': [],
+                                'headersSize': None,
+                                'bodySize': None
+                            }
+                    }
             curr_entry = tmp_entry.copy()
             curr_entry['request']['method'] = method
             curr_entry['request']['url'] = element_url
             curr_entry['response']['status'] = status
             curr_entry['response']['headers'] = tmp_header_lst
-            curr_entry['response']['headerSize'] = headerSize
+            curr_entry['response']['headersSize'] = headerSize
             curr_entry['response']['bodySize'] = bodySize
 
             curr_har_dict['log']['entries'].append(curr_entry)
