@@ -527,7 +527,7 @@ def __main__():
     options, args = parser.parse_args()
     if options.trials is None:
         parser.error('Must specify number of trials with -t')
-    NUMBER_OF_TRIALS = options.trials
+    NUMBER_OF_TRIALS = int(options.trials)
     # Clean up old sessions
     reset_old_files()
     # Setup
