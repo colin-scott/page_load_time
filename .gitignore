@@ -1,3 +1,5 @@
+telemetry/temp/*
+data/*
 data/
 analysis/wpr/
 analysis/web-page-replay/
