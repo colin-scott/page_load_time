@@ -311,7 +311,8 @@ def run_benchmarks(urls, trial_number):
         p.wait()  # We can only load 1 url on Chrome at a time
 
         # Parse data
-        benchmark_results = eval(tmp_results)
+        tmp_json = json.loads(tmp_results)
+        benchmark_results = tmp_json['values']
 
         output = {urls[i]: {'cold_times': {trial_key: benchmark_results}}}
         output_file = os.path.join(output_path, urlsafe_b64encode(urls[i]))
