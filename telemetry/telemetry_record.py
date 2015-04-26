@@ -515,6 +515,22 @@ def generate_hars():
         with open(file_name, 'wb') as f:
             json.dump(curr_har_dict, f)
 
+def write_valids():
+    """Creates PLT_SRC/data/filtered_stats/valids.txt
+
+    valids.txt contains the valid urls to be included in data analysis
+    Each line is:
+    url path/to/har/file
+    Note: does not include pc files
+    """
+    har_path = os.path.join(PLT_SRC, 'data/har/*')
+    valid_path = '../data/filtered_stats/valids.txt'
+
+    har_files = [f for f in glob(har_path) if '.pc' not in f]
+    urls = [urlsafe_b64decode(f.split('/')[-1].split('.')[0]) for f in har_files]
+    with open(valid_path, 'w') as f:
+        for url, url_har_path in zip(urls, har_files):
+            f.write('{0} {1}\n'.format(url, url_har_path))
 
 def __main__():
 
@@ -560,6 +576,7 @@ def __main__():
     # Convert benchmark results to har format
     generate_hars()
     # Analysis
+    write_valids()
 
 if __name__ == '__main__':
     __main__()
