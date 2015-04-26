@@ -453,12 +453,12 @@ def generate_hars():
                 curr_har_dict['log']['pages'][0]['id'] = key.host
                 curr_har_dict['log']['pages'][0]['title'] = key.host  # Set both
                 if '_pc' in wpr_file:
-                    wpr_host = urlsafe_b64encode(key.host) + '.pc'
+                    wpr_host = urlsafe_b64encode(agg_key) + '.pc'
                     # It's a modified wpr file
                     curr_har_dict['log']['pages'][0]['pageTimings']['onLoad'] \
                             = results_data[agg_key]['modified_cold_time']
                 else:
-                    wpr_host = urlsafe_b64encode(key.host)
+                    wpr_host = urlsafe_b64encode(agg_key)
                     # It's an original wpr file
                     curr_har_dict['log']['pages'][0]['pageTimings']['onLoad'] \
                             = results_data[agg_key]['cold_time']
@@ -510,7 +510,8 @@ def generate_hars():
             raise KeyError('Could not create host from url')
 
         har_path = '../data/har/'
-        file_name = har_path + wpr_host + '.1.har'
+        #file_name = har_path + wpr_host + '.1.har'
+        file_name = har_path + wpr_host + '.har'  # Modified for har processing
         with open(file_name, 'wb') as f:
             json.dump(curr_har_dict, f)
 
