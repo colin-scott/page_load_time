@@ -416,7 +416,7 @@ def aggregate_min_results():
 def generate_hars():
     """Merge plts and wprs into a har file
 
-    Stores 2 .har files per url (regular and modified) in data/har/
+    Stores 2 .har files per url (regular and modified) in data/replay/
     """
     results_path = 'data/results.db'
     results_data = {}
@@ -509,7 +509,7 @@ def generate_hars():
         if wpr_host is None:
             raise KeyError('Could not create host from url')
 
-        har_path = '../data/har/'
+        har_path = '../data/replay/'
         #file_name = har_path + wpr_host + '.1.har'
         file_name = har_path + wpr_host + '.har'  # Modified for har processing
         with open(file_name, 'wb') as f:
@@ -523,7 +523,7 @@ def write_valids():
     url path/to/har/file
     Note: does not include pc files
     """
-    har_path = os.path.join(PLT_SRC, 'data/har/*')
+    har_path = os.path.join(PLT_SRC, 'data/replay/*')
     valid_path = '../data/filtered_stats/valids.txt'
 
     har_files = [f for f in glob(har_path) if '.pc' not in f]
