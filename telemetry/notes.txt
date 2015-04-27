@@ -1,0 +1,30 @@
+sudo python telemetry_record.py -t 3
+
+
+cut -d ' ' -f 2 ../data/filtered_stats/valids.txt > valid_originals.txt
+
+# ./har_processing/get_replays_from_originals.rb valid_originals.txt > valid_replays.txt  # May not need this, we are only working with replays here
+
+./har_processing/extract_cacheable_bytes.rb valid_originals.txt | sort | uniq > cacheable_bytes.dat
+
+(cd ./graphs/cacheable_bytes/; ./generate_cdf_from_raw_data.sh ../../cacheable_bytes.dat)
+
+
+# Part of Sanity Check steps, but only need to get replay_plts.dat
+./har_processing/extract_plt.rb valid_originals.txt > replay_plts.dat
+
+
+# Raw PLTs
+egrep '.pc.har ' replay_plts.dat > perfect_cache_replay_plts.dat
+egrep -v '.pc.har ' replay_plts.dat > unmodified_replay_plts.dat
+(cd ./graphs/plts/; ./generate_cdf_from_raw_data.sh ../../unmodified_replay_plts.dat ../../perfect_cache_replay_plts.dat)
+
+
+#   PLT Reduction
+./graphs/percent_plt_reduction/compute_median_reduction.rb replay_plts.dat > median_plt_reduction.dat 2>plt_got_worse.dat
+(cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.dat)
+
+
+#   Ratio Cacheable bytes: PLT Reduction
+./graphs/ratio_bytes_to_reduction/compute_ratio.rb  median_plt_reduction.dat cacheable_bytes.dat > ratio.dat
+(cd ./graphs/ratio_bytes_to_reduction/; ./generate_cdf_from_raw_data.sh ../../ratio.dat)
