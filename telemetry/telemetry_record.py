@@ -510,7 +510,7 @@ def generate_hars():
             raise KeyError('Could not create host from url')
 
         har_path = '../data/replay/'
-        #file_name = har_path + wpr_host + '.1.har'
+        #file_name = har_path + wpr_host + '.1.har'  # Used for replays
         file_name = har_path + wpr_host + '.har'  # Modified for har processing
         with open(file_name, 'wb') as f:
             json.dump(curr_har_dict, f)
@@ -526,8 +526,10 @@ def write_valids():
     har_path = os.path.join(PLT_SRC, 'data/replay/*')
     valid_path = '../data/filtered_stats/valids.txt'
 
-    har_files = [f for f in glob(har_path) if '.pc' not in f]
-    urls = [urlsafe_b64decode(f.split('/')[-1].split('.')[0]) for f in har_files]
+    #har_files = [f for f in glob(har_path) if '.pc' not in f]
+    har_files = [f for f in glob(har_path)]  # Include pc files?
+    urls = \
+        [urlsafe_b64decode(f.split('/')[-1].split('.')[0]) for f in har_files]
     with open(valid_path, 'w') as f:
         for url, url_har_path in zip(urls, har_files):
             f.write('{0} {1}\n'.format(url, url_har_path))
