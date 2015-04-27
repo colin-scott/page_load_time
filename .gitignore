@@ -10,3 +10,4 @@ analysis/web-page-replay/
 *.dat
 *.pdf
 *.txt
+!notes.txt
