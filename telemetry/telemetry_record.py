@@ -59,6 +59,23 @@ PLT_SRC='/home/jamshed/page_load_time'
 
 path.append(os.path.join(CHROMIUM_SRC, 'third_party/webpagereplay'))
 
+def prescreenUrl(url):
+    """Returns bool if url is online
+
+    :param url: str url
+    """
+    if url == '':
+        return False
+
+    cmd = 'wget -t 1 -T 10 {0} -O /dev/null'.format(url)
+    p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    out, err = p.communicate()
+
+    failed = ['Giving up', 'failed', 'Connection timed out']
+    if any(x in out for x in failed):
+        return False
+    return True
+
 def record(page_set, url, options='--browser=android-jb-system-chrome'):
     """Runs wpr with telemetry to record an initial target page set
 
@@ -68,6 +85,7 @@ def record(page_set, url, options='--browser=android-jb-system-chrome'):
     """
     record_path = os.path.join(CHROMIUM_SRC, 'tools/perf/record_wpr')
     cmd = ' '.join(['sudo', record_path, options, page_set])
+    print cmd
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     p.wait()
     output = p.stdout.read()
@@ -87,7 +105,25 @@ def get_urls(path):
     urls = []
     with open(path, 'rb') as f:
         urls = [x.strip() for x in f.readlines()]
-    return urls
+
+    # Prune urls that are not working
+    goodUrls = []
+    badUrls = []
+    for url in urls:
+        if prescreenUrl(url):
+            goodUrls.append(url)
+        else:
+            badUrls.append(url)
+
+    with open('bad_urls', 'wb') as f:
+        f.write('\n'.join(badUrls))
+        f.close()
+
+    with open(path, 'wb') as f:
+        f.write('\n'.join(goodUrls))
+        f.close()
+
+    return goodUrls
 
 def write_page_sets(urls):
     """Writes a page set file for each url (and its modified version) in urls
@@ -559,6 +595,7 @@ def __main__():
     make_modified_json(len(urls))
     # Record each one, measure plt
     for i in range(len(urls)):
+        print 'Recording url {0}'.format(i)
         test_name = 'url{0}'.format(i)
         record('{0}_page_set'.format(test_name), urls[i])
     # Move files here
