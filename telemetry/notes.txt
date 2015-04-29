@@ -1,6 +1,6 @@
 sudo python telemetry_record.py -t 3
 
-
+(cd ../analysis)
 cut -d ' ' -f 2 ../data/filtered_stats/valids.txt > valid_originals.txt
 
 # ./har_processing/get_replays_from_originals.rb valid_originals.txt > valid_replays.txt  # May not need this, we are only working with replays here
