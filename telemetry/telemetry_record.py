@@ -87,14 +87,14 @@ def record(page_set, url, options='--browser=android-jb-system-chrome'):
     cmd = ' '.join(['sudo', record_path, options, page_set])
     print cmd
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    p.wait()
-    output = p.stdout.read()
-    # Check for errors
-    assert p.returncode is 0, '{0} returned an error: {1}'.format(page_set,
-            p.returncode)
+    output, err = p.communicate()
+    print output
     # Silently fail, push output to failed_urls
-    if 'PASSED' not in output:
+    if p.returncode == 1 or 'PASSED' not in output:
         failed_url(url, output)
+        return 1
+
+    return 0
 
 def get_urls(path):
     """Returns a list of urls from path
@@ -594,10 +594,21 @@ def __main__():
     write_page_sets(urls)
     make_modified_json(len(urls))
     # Record each one, measure plt
+    working_urls = []
+    bad_urls = []
     for i in range(len(urls)):
         print 'Recording url {0}'.format(i)
         test_name = 'url{0}'.format(i)
-        record('{0}_page_set'.format(test_name), urls[i])
+        success = record('{0}_page_set'.format(test_name), urls[i])
+        if success == 0:
+            # Good url
+            working_urls.append(urls[i])
+        elif success == 1:
+            # Bad url
+            bad_urls.append(urls[i])
+    # Write out bad urls
+    for url in bad_urls:
+        failed_url(url, 'Recording error')
     # Move files here
     move_wpr_files('url*_page_set_*.wpr')
     # Modify wpr
@@ -607,9 +618,9 @@ def __main__():
     # Run trials
     for trial_number in range(NUMBER_OF_TRIALS):
         # Prepare benchmark
-        prepare_benchmark(trial_number, len(urls))
+        prepare_benchmark(trial_number, len(working_urls))
         # Run benchmarks for each page set (url), N times, aggregating data
-        run_benchmarks(urls, trial_number)
+        run_benchmarks(working_urls, trial_number)
     # Aggregate benchmark data
     aggregate_min_results()
     # Convert benchmark results to har format
