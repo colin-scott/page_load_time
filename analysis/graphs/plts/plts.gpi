@@ -35,7 +35,7 @@ set ylabel "CDF web pages"
 set xlabel "Page Load Time, Milliseconds"
 
 set yrange [0:]
-set xrange [:10000]
+set xrange [:100000]
 # set log x
 
 set output "plts.pdf"
