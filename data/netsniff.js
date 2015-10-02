@@ -103,6 +103,7 @@ if (system.args.length === 1) {
 
     page.address = system.args[1];
     page.resources = [];
+    page.set('settings.userAgent', "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2194.2 Safari/537.36");
 
     page.onLoadStarted = function () {
         page.startTime = new Date();

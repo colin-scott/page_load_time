@@ -1,13 +1,13 @@
 --------------- Installation: --------------
 
 brew update && brew install phantomjs
-cd analysis && git clone https://github.com/colin-scott/web-page-replay.git
+(cd analysis && git clone https://github.com/colin-scott/web-page-replay.git wpr)
 
 -------------- Workflow: ----------------
 
-./data/csv/extract_urls.rb httparchive*pages.csv > ../target_urls
+./data/csv/extract_urls.rb httparchive*pages.csv > ./data/target_urls
 cd data
-sudo ./data/fetch_urls_sequentially.py
+sudo ./fetch_urls_sequentially.py
 cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
 
