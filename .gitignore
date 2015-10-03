@@ -1,3 +1,5 @@
+telemetry/temp/*
+data/*
 data/
 analysis/wpr/
 analysis/web-page-replay/
@@ -8,3 +10,4 @@ analysis/web-page-replay/
 *.dat
 *.pdf
 *.txt
+!notes.txt

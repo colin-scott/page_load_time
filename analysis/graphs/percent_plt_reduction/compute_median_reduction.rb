@@ -14,7 +14,7 @@ def is_pc(experiment_name)
   # TODO(cs): encoding the experiment in the filename is jenky.
   # Should really use a database.
   experiment_name = experiment_name.gsub(/.\d+.har$/, "")
-  return (experiment_name =~ /.pc$/)
+  return (experiment_name.include?(".pc"))
 end
 
 class Array
