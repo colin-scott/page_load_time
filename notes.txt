@@ -18,13 +18,11 @@ cd ..
 # Sanity check, over just original fetches and wprs:
 # You should see 0 urls in data/filtered_stats/valids.txt at this point, but most of the URLs
 # should *not* show up in one of the other data/filtered_stats/ files
-cd analysis
-./har_processing/filter_bad_pages.rb ../data/har
-cd ..
+(cd analysis; ./cleanse_hars.rb ../data/har; ./har_processing/filter_bad_pages.rb ../data/har)
 
 # For a parallel version of replay, see ./replay_vms/README.md
 cd data
-sudo ./replay_urls_sequentially.py ./data/wpr
+sudo ./replay_urls_sequentially.py ./wpr
 cd ../analysis
 ./cleanse_hars.rb ../data/replay
 
