@@ -8,9 +8,6 @@ import sys
 import telemetry_web_page_replay as wpr
 from telemetry_util import FileSafeName, exponential_backoff
 
-if os.geteuid() != 0:
-  print "Must run as root"
-  sys.exit(1)
 
 phantomjs_path = "phantomjs"
 if os.path.exists("/home/cs/local/bin/phantomjs"):
@@ -26,7 +23,13 @@ def fetch(url):
     subprocess.Popen("%s --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
                      (phantomjs_path, url, har_output, phantomjs_err), shell=True)
 
-with open("target_urls") as f:
-  for url in f:
-    url = url.strip()
-    exponential_backoff(fetch, url)
+
+if __name__ == '__main__':
+  if os.geteuid() != 0:
+    print "Must run as root"
+    sys.exit(1)
+
+  with open("target_urls") as f:
+    for url in f:
+      url = url.strip()
+      exponential_backoff(fetch, url)

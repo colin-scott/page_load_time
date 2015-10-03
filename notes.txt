@@ -20,6 +20,10 @@ cd ..
 # should *not* show up in one of the other data/filtered_stats/ files
 (cd analysis; ./cleanse_hars.rb ../data/har; ./har_processing/filter_bad_pages.rb ../data/har)
 
+# Optionally: refetch any urls that didn't fetch properly the first time.
+(cd data; sudo ./refetch_urls_sequentially.py)
+(cd analysis; ./cleanse_hars.rb ../data/har; ./har_processing/filter_bad_pages.rb ../data/har)
+
 # For a parallel version of replay, see ./replay_vms/README.md
 cd data
 sudo ./replay_urls_sequentially.py ./wpr
@@ -73,9 +77,6 @@ egrep -v '.pc.1.har ' replay_plts.dat > unmodified_replay_plts.dat
 (cd ./graphs/ratio_bytes_to_reduction/; ./generate_cdf_from_raw_data.sh ../../ratio.dat)
 
 ---------------- TODO: ------------------
-
-- Another script: refetches any urls that didn't fetch properly, but doesn't
-  refetch those that did fetch properly.
 
 - Figure out why fetches failed, even on c5.
    -> 131 caused phantomjs to crash.
