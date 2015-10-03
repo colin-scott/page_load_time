@@ -251,8 +251,9 @@ def copy_wpr_to_benchmark():
 def prepare_benchmark(trial_number, num_urls):
     """Writes telemetryBenchmarks.py, the benchmark for Chromium to run
 
-    1. Writes benchmarks to CHROMIUM_SRC/tools/perf/benchmarks/page_cycler.py if
-        they do not already exist
+    1. Writes benchmarks to
+       CHROMIUM_SRC/tools/perf/benchmarks/telemetryBenchmarks.py if they do not
+       already exist
     :param trial_number: int for the number of this trial run
     :param num_urls: int of the number of urls to run through
     """
@@ -269,6 +270,8 @@ def prepare_benchmark(trial_number, num_urls):
             "        parser.add_option('--v8-object-stats',\n"
             "            action='store_true',\n"
             "            help='Enable detailed V8 object statistics.')\n"
+            "        parser.add_option('--user-server-delay')\n"
+            "        print 'IN BENCHMARK'\n"
             "        parser.add_option('--report-speed-index',\n"
             "            action='store_true',\n"
             "            help='Enable the speed index metric.')\n"
@@ -286,6 +289,7 @@ def prepare_benchmark(trial_number, num_urls):
 
     benchmark_template = ("@benchmark.Enabled('android')\n"
                           "class PageCyclerUrl{0}(_PageCycler):\n"
+                          "    print 'Using page cycler'\n"
                           "    page_set = page_sets.url{0}PageSet\n\n")
 
     with open(telemetry_page_cycler_path, 'w') as f:
@@ -333,8 +337,11 @@ def get_benchmark_result(cmd):
     benchmark timesout
     :param cmd: str benchmark command to run
     """
+    print "running benchmark with command:"
+    print cmd
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate() # We can only load 1 url on Chrome at a time
+    print out
     return out, err, p.returncode
 
 def run_benchmarks(urls, urlIndices, trial_number):
@@ -400,19 +407,24 @@ def run_benchmarks(urls, urlIndices, trial_number):
                     'rm -f {0}'.format(urlFilePath),
                     'rm -f {0}'.format(urlpcFilePath)
                     ]
-            for cmd in commands:
-                p = Popen(cmd, shell=True)
+            for cmdss in commands:
+                p = Popen(cmdss, shell=True)
                 p.wait()
             # Skip the rest of this url
             print "Moving on!"
             continue
 
         # Parse data
-        tmp_path = 'temp/tmp_benchmark_result.json'
+        tmp_path = 'temp/tmp_benchmark_result_json'
         with open(tmp_path, 'rb') as f:
             tmp_json = json.load(f)
-        #tmp_json = json.loads(tmp_results)
         benchmark_results = tmp_json['values']
+        commands = [
+            'rm -f ~/page_load_time/telemetry/temp/tmp_benchmark_result_json',
+                ]
+        for cmds in commands:
+            p = Popen(cmds, shell=True)
+            p.wait()
 
         output = {urls[i]: {'cold_times': {trial_key: benchmark_results}}}
         output_file = os.path.join(output_path, urlsafe_b64encode(urls[i]))
@@ -424,7 +436,7 @@ def run_benchmarks(urls, urlIndices, trial_number):
             raise IOError('Unable to write to {0}'.format(output_file))
 
 
-        ### Now run for Perfect Cache file ###
+        ############### Now run for Perfect Cache file ################
 
         #p = Popen(
             #cmd.format(str(i) + '_pc'),
@@ -433,20 +445,13 @@ def run_benchmarks(urls, urlIndices, trial_number):
         try:
             out, err, returncode = get_benchmark_result(cmd.format(str(i) + '_pc'))
             timeout = False
+            print 'successfully ran benchmark for url' + str(i) + '_pc'
         except TimeoutError:
             # Benchmark failed
             print 'Benchmark Timeout!'
             out = ''
             returncode = 1
             timeout = True
-
-        #try:
-            #tmp_results = bindSocket()
-            #timeout = False
-        #except TimeoutError:
-            ## Benchmark failed
-            #print 'Timeout!'
-            #timeout = True
 
         #out, err = p.communicate() # We can only load 1 url on Chrome at a time
 
@@ -475,20 +480,28 @@ def run_benchmarks(urls, urlIndices, trial_number):
                     'rm -f {0}'.format(urlFilePath),
                     'rm -f {0}'.format(urlpcFilePath)
                     ]
-            for cmd in commands:
-                p = Popen(cmd, shell=True)
-                p.wait()
+            for cmdss in commands:
+               p = Popen(cmdss, shell=True)
+               p.wait()
             # Skip the rest of this url
             print "Moving on!"
             continue
 
 
         # Parse data
-        tmp_path = 'temp/tmp_benchmark_result.json'
+        tmp_path = 'temp/tmp_benchmark_result_json'
+        # import ipdb; ipdb.set_trace()
         with open(tmp_path, 'rb') as f:
             tmp_json = json.load(f)
         #tmp_json = json.loads(tmp_results)
         benchmark_results = tmp_json['values']
+
+        commands = [
+            'rm -f ~/page_load_time/telemetry/temp/tmp_benchmark_result_json',
+                ]
+        for cmds in commands:
+            p = Popen(cmds, shell=True)
+            p.wait()
 
         output = {urls[i]: {'cold_times': {trial_key: benchmark_results}}}
         output_file = os.path.join(output_path, urlsafe_b64encode(urls[i]))
@@ -605,6 +618,7 @@ def generate_hars():
 
     wpr_path = 'data/wpr_source'
     wpr_files = filter(lambda x: '.wpr' in x, os.listdir(wpr_path))
+    print wpr_files
     for wpr_file in wpr_files:
         curr_wpr = cPickle.load(open(os.path.join(wpr_path, wpr_file), 'rb'))
         curr_har_dict = {'log':
@@ -620,11 +634,15 @@ def generate_hars():
                             }
                         }
         wpr_host = None
+        # print "Looping here"
+        print wpr_file
         for key, value_lst in zip(curr_wpr.keys(), curr_wpr.values()):
             matches = [full_url for full_url in results_data.keys() if \
                     key.host in full_url]
             if matches:
                 if len(matches) != 1:
+                    print "Found 2 urls with the same name!"
+                    print matches
                     continue
                 assert len(matches) == 1, ('Found more than 1 match for'
                         ' {0}'.format(matches))
@@ -696,7 +714,11 @@ def generate_hars():
         #file_name = har_path + wpr_host + '.1.har'  # Used for replays
         file_name = har_path + wpr_host + '.har'  # Modified for har processing
         with open(file_name, 'wb') as f:
-            json.dump(curr_har_dict, f)
+            try:
+                json.dump(curr_har_dict, f)
+            except:
+                # Silently fail
+                print "Unable to write har file: " + str(file_name)
 
 def write_valids():
     """Creates PLT_SRC/data/filtered_stats/valids.txt
