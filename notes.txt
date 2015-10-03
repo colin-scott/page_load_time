@@ -1,18 +1,25 @@
 --------------- Installation: --------------
 
-brew update && brew install phantomjs
+brew update
+brew install python ruby phantomjs
 (cd analysis && git clone https://github.com/colin-scott/web-page-replay.git wpr)
 
 -------------- Workflow: ----------------
 
 ./data/csv/extract_urls.rb httparchive*pages.csv > ./data/target_urls
 cd data
+# Error log for web-page-replay process (most recent run) will show up in wpr_log.tx
+# Error log for phantomjs process (each run) will show up in wpr/<b64>.err,
+# and also unfortunately as random strings in har/<b64>.har.
 sudo ./fetch_urls_sequentially.py
 cd ..
 ./analysis/wpr/modify_wpr_delays.py ./data/wpr
 
 # Sanity check, over just original fetches and wprs:
+# You should see most urls appear in valids.txt
+cd analysis
 ./har_processing/filter_bad_pages.rb ../data/har
+cd ..
 
 # For a parallel version of replay, see ./replay_vms/README.md
 cd data
