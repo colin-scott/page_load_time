@@ -61,6 +61,7 @@ cut -d ' ' -f 2 ../data/filtered_stats/valids.txt > valid_originals.desktop.txt
 less plt_comparison.dat
 
 # Raw PLTs
+# (Not currently included in the paper, AFAICT?)
 egrep '.pc.1.har ' replay_plts.desktop.dat > perfect_cache_replay_plts.desktop.dat
 egrep -v '.pc.1.har ' replay_plts.desktop.dat > unmodified_replay_plts.desktop.dat
 (cd ./graphs/plts/; ./generate_cdf_from_raw_data.sh ../../unmodified_replay_plts.desktop.dat ../../perfect_cache_replay_plts.desktop.dat)
@@ -76,7 +77,17 @@ egrep -v '.pc.1.har ' replay_plts.desktop.dat > unmodified_replay_plts.desktop.d
     cacheable_bytes.desktop.dat > ratio.desktop.dat
 (cd ./graphs/ratio_bytes_to_reduction/; ./generate_cdf_from_raw_data.sh ../../ratio.desktop.dat)
 
+---- To compare desktop vs mobile results ----
+
+# ./intersect_keys.rb median_plt_reduction.desktop.dat median_plt_reduction.dat
+(cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median_plt_reduction.desktop.dat ../../median_plt_reduction.dat)
+
 ---------------- TODO: ------------------
+
+- Even though Jamshed and I had the same target list, the URLs in
+  valid_urls.txt and all of the .dat files differ. I suspect this is because
+  of redirects? i.e., one of us is logging not the original fetch URLs, but
+  the redirect URL? Should investigate.
 
 - Figure out why fetches failed, even on c5.
    -> 131 caused phantomjs to crash.
