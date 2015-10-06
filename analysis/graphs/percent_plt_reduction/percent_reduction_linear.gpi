@@ -35,7 +35,7 @@ set ylabel "CDF of web pages"
 set xlabel "Fraction reduction in PLT [(unmodified - perfect cache) / unmodified)]"
 
 set yrange [0:]
-set xrange [-10:]
+set xrange [-0.2:1]
 # set log x
 
 set output "percent_reduction_linear.pdf"
