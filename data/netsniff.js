@@ -103,9 +103,14 @@ if (system.args.length === 1) {
 
     page.address = system.args[1];
     page.resources = [];
-    //page.set('settings.userAgent', "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2194.2 Safari/537.36");
+    // TODO(cs): make UA configurable from the command line.
+    // Desktop:
+    //page.settings = {
+    //  userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2194.2 Safari/537.36"
+    //};
+    // Mobile:
     page.settings = {
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2194.2 Safari/537.36"
+      userAgent: "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.36 (KHTML, like Gecko) Chrome/40.0.2194.2 Mobile Safari/535.36"
     };
 
     page.onLoadStarted = function () {
