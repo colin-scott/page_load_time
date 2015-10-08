@@ -14,7 +14,9 @@ def plt_variance(goodStdev):
     data_path = '../temp/*'
     data_files = [f for f in glob(data_path) if '.json' not in f]
     sorted_files = sorted(data_files)
+    num_plts = len(data_files)
 
+    num_bad_plts = 0
     curr_url = None
     for tmp_file in sorted_files:
         data = {}
@@ -29,9 +31,13 @@ def plt_variance(goodStdev):
         stdev = numpy.std(npValues)
         mean = numpy.mean(npValues)
 
+        is_good_plt = True
         for val in values:
             pltStd = (abs(val - mean ) / float(stdev))
             if pltStd >  goodStdev:
+                if is_good_plt:
+                    is_good_plt = False
+                    num_bad_plts += 1
                 encodedURL = tmp_file.split("/")[-1].split(".")[0]
                 url = urlsafe_b64decode(encodedURL)
                 print "Found plt > 1 stdev: {0}".format(url)
@@ -39,6 +45,9 @@ def plt_variance(goodStdev):
                 print "mean: {0}".format(mean)
                 print "plt: {0}".format(val)
                 print "plt stdev: {0}".format(pltStd)
+    print "Total plts; {0}, Num bad plts: {1}, bad plt percent: {2}".format(
+            num_plts, num_bad_plts, 0 if num_bad_plts == 0 else
+            float(num_bad_plts) / float(num_plts))
 
 def __main__():
     parser = OptionParser()
