@@ -1,10 +1,12 @@
-"""Record WebPageReplay, modify, and record page load times
+"""Record WebPageReplay, modify to perfect cache, and record page load times
 
 Records running a set of target urls on the remote tablet, modifies cacheable
 objects, then re-runs to see page load time differences. Writes 1 har file for
-each url and modified url in page_load_time/data/hars/
+each url and 1 har file for each modified url in page_load_time/data/hars/
 
 Usage: sudo python telemetry_record.py -t 2
+
+-t The number of benchmark replays to use. Take the minimum of all results.
 
 Notes:
     Assumes - telemetry is in CHROMIUM_SRC/tools/telemetry/telemetry
@@ -40,47 +42,28 @@ Workflow:
         write to PLT_SRC/telemetry/data/results.db
     13. Convert PLT_SRC/data/results.db to har files and move hars to
         PLT_SRC/data/har
+
+TODO:
+    * Move STDOUT printing to python logging module
 """
 from base64 import urlsafe_b64encode, urlsafe_b64decode
+from functools import wraps
 from glob import glob
 from optparse import OptionParser
 from os import listdir, path, geteuid
 from shutil import move, copy
 from subprocess import Popen, PIPE, STDOUT
 from sys import path, exit
+from time import sleep
 import cPickle
+import errno
 import json
 import os
+import os
 import pickle
+import signal
 import socket
 
-from functools import wraps
-import errno
-import os
-import signal
-from time import sleep
-
-class TimeoutError(Exception):
-    pass
-
-def timeout(seconds=40, error_message=os.strerror(errno.ETIME)):
-    def decorator(func):
-        def _handle_timeout(signum, frame):
-            raise TimeoutError(
-                    '{0} ran for more than {1} seconds'.format(
-                        func.__name__, seconds))
-        def wrapper(*args, **kwargs):
-            signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(seconds)
-            try:
-                result = func(*args, **kwargs)
-            finally:
-                signal.alarm(0)
-            return result
-
-        return wraps(func)(wrapper)
-
-    return decorator
 
 CHROMIUM_SRC='/home/jamshed/src'
 PLT_SRC='/home/jamshed/page_load_time'
@@ -88,7 +71,7 @@ PLT_SRC='/home/jamshed/page_load_time'
 path.append(os.path.join(CHROMIUM_SRC, 'third_party/webpagereplay'))
 
 def prescreenUrl(url):
-    """Returns bool if url is online
+    """Returns bool if url is online and available
 
     :param url: str url
     """
@@ -104,6 +87,33 @@ def prescreenUrl(url):
         return False
     return True
 
+class TimeoutError(Exception):
+    pass
+
+def timeout(seconds=60, error_message=os.strerror(errno.ETIME)):
+    """A decorator that throws an exception if the method timesout
+
+
+    :param seconds: int time length until timeout, in seconds
+    :param error_message: os.strerror
+    """
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(
+                    '{0} ran for more than {1} seconds'.format(
+                        func.__name__, seconds))
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+        return wraps(func)(wrapper)
+
+    return decorator
+
 def record(page_set, url, options='--browser=android-jb-system-chrome'):
     """Runs wpr with telemetry to record an initial target page set
 
@@ -113,10 +123,9 @@ def record(page_set, url, options='--browser=android-jb-system-chrome'):
     """
     record_path = os.path.join(CHROMIUM_SRC, 'tools/perf/record_wpr')
     cmd = ' '.join(['sudo', record_path, options, page_set])
-    print cmd
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     output, err = p.communicate()
-    print output
+    print output  # Print the record log for now
     # Silently fail, push output to failed_urls
     if p.returncode == 1 or 'FAILED' in output or 'PASSED' not in output:
         failed_url(url, output)
@@ -190,6 +199,7 @@ def make_modified_json(num_urls):
     """Creates *.json files to point to the modified archive files
 
     Located in CHROMIUM_SRC/tools/perf/page_sets/data/
+
     :param num_urls: int for the number of target urls
     TODO: add sha1 to remove runtime WARNING
     """
@@ -251,15 +261,17 @@ def copy_wpr_to_benchmark():
 def prepare_benchmark(trial_number, num_urls):
     """Writes telemetryBenchmarks.py, the benchmark for Chromium to run
 
-    1. Writes benchmarks to
-       CHROMIUM_SRC/tools/perf/benchmarks/telemetryBenchmarks.py if they do not
-       already exist
+    Writes benchmarks to
+    CHROMIUM_SRC/tools/perf/benchmarks/telemetryBenchmarks.py if they do not
+    already exist
+
     :param trial_number: int for the number of this trial run
     :param num_urls: int of the number of urls to run through
     """
     telemetry_page_cycler_path = os.path.join(CHROMIUM_SRC,
             'tools/perf/benchmarks/telemetryBenchmarks.py')
 
+    # Dynamically writing python to a file
     class_template = ("from measurements import page_cycler\n"
             "import page_sets\n"
             "from telemetry import benchmark\n\n"
@@ -298,46 +310,14 @@ def prepare_benchmark(trial_number, num_urls):
             f.write(benchmark_template.format(i))
             f.write(benchmark_template.format(str(i) + '_pc'))
 
-@timeout(1000)  # About 15 minutes
-def bindSocket():
-    """Binds to a socket and returns information from a benchmark"""
-    # Create the socket
-    # This allows the benchmark to pass data back here
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    try:
-        os.remove("/tmp/telemetrySocket")
-    except OSError:
-        pass
-    s.bind("/tmp/telemetrySocket")
-    s.listen(1)
-
-
-    def signal_handler(signum, frame):
-            raise Exception("Timed out!")
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(900)
-    try:
-        conn, addr = s.accept()  # Still gets stuck here
-    except Exception as e:
-        raise TimeoutError('Timed out!!')
-
-    tmp_results = ''
-    while 1:
-        data = conn.recv(1024)
-        tmp_results += data
-        if not data:
-            break
-    conn.close()
-    return tmp_results
-
-@timeout(1000)  # About 15 minutes
+@timeout(1000) # About 15 minutes
 def get_benchmark_result(cmd):
     """Runs the benchmark cmd and returns the result, or throws an error if the
 
     benchmark timesout
     :param cmd: str benchmark command to run
     """
-    print "running benchmark with command:"
+    print 'running benchmark with command:'
     print cmd
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate() # We can only load 1 url on Chrome at a time
@@ -347,7 +327,7 @@ def get_benchmark_result(cmd):
 def run_benchmarks(urls, urlIndices, trial_number):
     """Runs the telemetryBenchmarks benchmark for each url and modified url
 
-    Dumps data temp/
+    Dumps data ./temp/
     Sample filename: base64('http://jamnoise.com').1.pc
     Sample output:
     {'http://jamnoise.com':
@@ -366,9 +346,6 @@ def run_benchmarks(urls, urlIndices, trial_number):
 
     cmd = ('sudo ' + benchmark_path + ' telemetryBenchmarks.url{0}')
     for i in urlIndices:
-        #p = Popen(
-            #cmd.format(i), shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-
         try:
             out, err, returncode = get_benchmark_result(cmd.format(i))
             timeout = False
@@ -380,22 +357,17 @@ def run_benchmarks(urls, urlIndices, trial_number):
             returncode = 1
             timeout = True
 
-        #out, err = p.communicate() # We can only load 1 url on Chrome at a time
-
         failed = ['FAILED']
-        #success = ['RESULT cold_times']
         if returncode != 0 or any(x in out for x in failed) or timeout:
-                #not any(x in out for x in success) or timeout: # Add returncode != 0
             # If a benchmark fails, remove its corresponding wpr file, and act
             # as if it didn't exist
             # Remove from data/wpr_source
-
             print 'Benchmark {0} failed'.format(i)
             print 'return code is ' + str(returncode)
+            print 'Out:'
             print out
-            print '======='
+            print 'Err:'
             print err
-            #import ipdb; ipdb.set_trace()
             urlName = 'url{0}_page_set_000.wpr'.format(i)
             urlpcName = 'url{0}_pc_page_set_000.wpr'.format(i)
             urlFilePath = os.path.join('data/wpr_source',urlName)
@@ -421,7 +393,7 @@ def run_benchmarks(urls, urlIndices, trial_number):
         benchmark_results = tmp_json['values']
         commands = [
             'rm -f ~/page_load_time/telemetry/temp/tmp_benchmark_result_json',
-                ]
+             ]
         for cmds in commands:
             p = Popen(cmds, shell=True)
             p.wait()
@@ -438,12 +410,9 @@ def run_benchmarks(urls, urlIndices, trial_number):
 
         ############### Now run for Perfect Cache file ################
 
-        #p = Popen(
-            #cmd.format(str(i) + '_pc'),
-            #shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-
         try:
-            out, err, returncode = get_benchmark_result(cmd.format(str(i) + '_pc'))
+            out, err, returncode = \
+                    get_benchmark_result(cmd.format(str(i) + '_pc'))
             timeout = False
             print 'successfully ran benchmark for url' + str(i) + '_pc'
         except TimeoutError:
@@ -453,22 +422,17 @@ def run_benchmarks(urls, urlIndices, trial_number):
             returncode = 1
             timeout = True
 
-        #out, err = p.communicate() # We can only load 1 url on Chrome at a time
-
         failed = ['FAILED']
-        #success = ['RESULT cold_times']
         if returncode != 0 or any(x in out for x in failed) or timeout:
-        #if returncode != 0 or any(x in out for x in failed) or \
-                #not any(x in out for x in success) or timeout:
             # If a benchmark fails, remove its corresponding wpr file, and act
             # as if it didn't exist
             # Remove from data/wpr_source
 
             print 'Benchmark {0}_pc failed'.format(i)
+            print 'Out:'
             print out
-            print '======='
+            print 'Err:'
             print err
-            #import ipdb; ipdb.set_trace()
             urlName = 'url{0}_page_set_000.wpr'.format(i)
             urlpcName = 'url{0}_pc_page_set_000.wpr'.format(i)
             urlFilePath = os.path.join('data/wpr_source',urlName)
@@ -477,9 +441,9 @@ def run_benchmarks(urls, urlIndices, trial_number):
             urlpcCmd = 'rm -f {0}'.format(urlpcFilePath)
             print 'Removing: {0}, {1}'.format(urlFilePath, urlpcFilePath)
             commands = [
-                    'rm -f {0}'.format(urlFilePath),
-                    'rm -f {0}'.format(urlpcFilePath)
-                    ]
+               'rm -f {0}'.format(urlFilePath),
+               'rm -f {0}'.format(urlpcFilePath)
+               ]
             for cmdss in commands:
                p = Popen(cmdss, shell=True)
                p.wait()
@@ -487,18 +451,15 @@ def run_benchmarks(urls, urlIndices, trial_number):
             print "Moving on!"
             continue
 
-
         # Parse data
         tmp_path = 'temp/tmp_benchmark_result_json'
-        # import ipdb; ipdb.set_trace()
         with open(tmp_path, 'rb') as f:
             tmp_json = json.load(f)
-        #tmp_json = json.loads(tmp_results)
         benchmark_results = tmp_json['values']
 
         commands = [
             'rm -f ~/page_load_time/telemetry/temp/tmp_benchmark_result_json',
-                ]
+             ]
         for cmds in commands:
             p = Popen(cmds, shell=True)
             p.wait()
@@ -603,7 +564,6 @@ def aggregate_min_results():
     result_path = 'data/results.db'
     pickle.dump(aggregated_data, open(result_path, 'w'))
 
-
 def generate_hars():
     """Merge plts and wprs into a har file
 
@@ -618,7 +578,6 @@ def generate_hars():
 
     wpr_path = 'data/wpr_source'
     wpr_files = filter(lambda x: '.wpr' in x, os.listdir(wpr_path))
-    print wpr_files
     for wpr_file in wpr_files:
         curr_wpr = cPickle.load(open(os.path.join(wpr_path, wpr_file), 'rb'))
         curr_har_dict = {'log':
@@ -634,7 +593,6 @@ def generate_hars():
                             }
                         }
         wpr_host = None
-        # print "Looping here"
         print wpr_file
         for key, value_lst in zip(curr_wpr.keys(), curr_wpr.values()):
             matches = [full_url for full_url in results_data.keys() if \
@@ -649,7 +607,7 @@ def generate_hars():
                 agg_key = matches[0]
                 # Found a match!
                 curr_har_dict['log']['pages'][0]['id'] = key.host
-                curr_har_dict['log']['pages'][0]['title'] = key.host  # Set both
+                curr_har_dict['log']['pages'][0]['title'] = key.host
                 if '_pc' in wpr_file:
                     wpr_host = urlsafe_b64encode(agg_key) + '.pc'
                     # It's a modified wpr file
@@ -707,11 +665,8 @@ def generate_hars():
         if wpr_host is None:
             print 'Could not create host from url: {0}'.format(wpr_file)
             continue
-            #raise KeyError(
-                    #'Could not create host from url: {0}'.format(wpr_file))
 
         har_path = '../data/replay/'
-        #file_name = har_path + wpr_host + '.1.har'  # Used for replays
         file_name = har_path + wpr_host + '.har'  # Modified for har processing
         with open(file_name, 'wb') as f:
             try:
@@ -731,7 +686,6 @@ def write_valids():
     har_path = os.path.join(PLT_SRC, 'data/replay/*')
     valid_path = '../data/filtered_stats/valids.txt'
 
-    #har_files = [f for f in glob(har_path) if '.pc' not in f]
     har_files = [f for f in glob(har_path)]  # Include pc files?
     urls = \
         [urlsafe_b64decode(f.split('/')[-1].split('.')[0]) for f in har_files]
@@ -740,11 +694,11 @@ def write_valids():
             f.write('{0} {1}\n'.format(url, url_har_path))
 
 def __main__():
-
     # Must run as root
     if geteuid() != 0:
         print "Must run as root"
         exit(1)
+
     # Get the number of trials to run for each url and modified url
     parser = OptionParser()
     parser.add_option('-t', '--trials', action='store', dest='trials',
@@ -753,8 +707,10 @@ def __main__():
     if options.trials is None:
         parser.error('Must specify number of trials with -t')
     NUMBER_OF_TRIALS = int(options.trials)
+
     # Clean up old sessions
     reset_old_files()
+
     # Setup
     target_url_path = 'target_urls'
     # Get url set
@@ -762,6 +718,7 @@ def __main__():
     # Generate individual user stories
     write_page_sets(urls)
     make_modified_json(len(urls))
+
     # Record each one, measure plt
     working_urls = []
     working_url_indices = []
@@ -780,12 +737,14 @@ def __main__():
     # Write out bad urls
     for url in bad_urls:
         failed_url(url, 'Recording error')
+
     # Move files here
     move_wpr_files('url*_page_set_*.wpr')
     # Modify wpr
     modify_wpr()
     # Move files to benchmark location
     copy_wpr_to_benchmark()
+
     # Run trials
     for trial_number in range(NUMBER_OF_TRIALS):
         print 'preparing benchmark trial#{0}'.format(trial_number)
