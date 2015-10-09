@@ -485,6 +485,8 @@ def reset_old_files():
     PLT_SRC/data/har/*
     PLT_SRC/data/replay/*
     PLT_SRC/telemetry/temp/*
+    CHROMIUM_SRC/webpagereplay_logs/*
+    PLT_SRC/telemetry/count.db
     """
     commands = [
         'rm -f {0}/tools/perf/page_sets/url*'.format(CHROMIUM_SRC),
@@ -496,6 +498,8 @@ def reset_old_files():
         'rm -f data/results.db',
         'rm -f {0}/data/har/*'.format(PLT_SRC),
         'rm -f {0}/data/replay/*'.format(PLT_SRC),
+        'rm -f {0}/webpagereplay_logs/*'.format(CHROMIUM_SRC),
+        'rm -f {0}/telemetry/count.db'.format(PLT_SRC),
             ]
 
     for cmd in commands:
