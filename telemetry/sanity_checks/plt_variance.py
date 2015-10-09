@@ -41,6 +41,9 @@ def plt_variance(goodStdev, use_stdev=False):
 
         if norm1 > 0.05 or norm2 > 0.05:
             print norm1, norm2, "******"
+            encodedURL = tmp_file.split("/")[-1].split(".")[0]
+            url = urlsafe_b64decode(encodedURL)
+            print url
         else:
             print norm1, norm2
 
