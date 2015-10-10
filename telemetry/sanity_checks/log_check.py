@@ -30,6 +30,7 @@ def parse_logs(numUrls):
             elif match304.match(line):
                 counts[304] += 1
 
+        # print counts
         counts['total'] = counts[404] + counts[200] + counts[304]
         counts['file'] = logFile.split('/')[-1]
         parsedLogs.append(counts)
@@ -46,19 +47,22 @@ def parse_logs(numUrls):
         # print i
 
     i = 0
-    while i < len(restWpr) / 2.:
+    while i < len(restWpr):
         print "For url #{0}".format(i)
         original = restWpr[i]
-        pc = restWpr[i+numUrls]
+        pc = restWpr[i+1]
 
         diff200 = original['content200'].difference(pc['content200'])
+        len_diff200 = len(original['content200']) - len(pc['content200'])
+        print "difference in size of diff200: {0}".format(len_diff200)
         print "size of diff200 is {0}".format(len(diff200))
 
         diff404 = original['content404'].difference(pc['content404'])
+        len_diff404 = len(original['content404']) - len(pc['content404'])
+        print "difference in size of diff200: {0}".format(len_diff404)
         print "size of diff404 is {0}".format(len(diff404))
 
-        i += 1
-
+        i += 2
 
 def __main__():
     parser = OptionParser()
