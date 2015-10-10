@@ -78,11 +78,15 @@ def prescreenUrl(url):
     if url == '':
         return False
 
-    cmd = 'wget -t 1 -T 10 {0} -O /dev/null'.format(url)
+    cmd = 'wget --spider -t 1 -T 10 {0} -O /dev/null'.format(url)
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
 
-    failed = ['Giving up', 'failed', 'FAILED', 'Connection timed out']
+    if p.returncode != 0:
+        return False
+
+    failed = ['404 Not Found', 'Giving up', 'failed', 'FAILED',
+            'Connection timed out']
     if any(x in out for x in failed):
         return False
     return True
