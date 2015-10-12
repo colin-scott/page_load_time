@@ -1,7 +1,8 @@
 --------------- Installation: --------------
 
 brew update
-brew install python ruby phantomjs gnuplot
+brew install python ruby1.9 phantomjs gnuplot
+# Phantomjs must be version >= 1.7
 (cd analysis && git clone https://github.com/colin-scott/web-page-replay.git wpr)
 
 -------------- Workflow: ----------------
