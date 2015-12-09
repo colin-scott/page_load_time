@@ -24,6 +24,7 @@ define local_absent () {
 
 local_package {
   # PhantomJS Requirements
+  'phantomjs':;
   'build-essential':;
   'g++':;
   'flex':;
@@ -112,15 +113,4 @@ define remove_python_pip () {
 file { [ "$local_home/scripts" ]:
   ensure => "directory",
   owner  => $local_user,
-}
-
-# Download PhantomJS
-# After downloading, cd into ~/phantomjs and run `./build.py`
-exec { "download_phantomjs":
-  require => Package['git'],
-  command => "git clone --recurse-submodules git://github.com/ariya/phantomjs.git",
-  cwd     => "$local_home/",
-  creates => "$local_home/phantomjs",
-  path    => $paths,
-  user    => $local_user,
 }
