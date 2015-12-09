@@ -1,4 +1,5 @@
 # Notes:
+# Assumes page_load_time/ is in your home directory
 # Also require Phantomjs: http://phantomjs.org/
 
 $local_user = "vagrant"
@@ -115,4 +116,13 @@ python_pip {
 file { [ "$local_home/scripts" ]:
   ensure => "directory",
   owner  => $local_user,
+}
+
+# Download web-page-replay
+exec { "download_wpr":
+  require => Package['git'],
+  command => "git clone https://github.com/colin-scott/web-page-replay.git $local_home/page_load_time/wpr",
+  creates => "$local_home/page_load_time/wpr",
+  path    => $paths,
+  user    => $local_user,
 }
