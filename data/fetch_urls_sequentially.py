@@ -8,10 +8,10 @@ import sys
 import telemetry_web_page_replay as wpr
 from telemetry_util import FileSafeName, exponential_backoff
 
-
 phantomjs_path = "phantomjs"
 if os.path.exists("/home/cs/local/bin/phantomjs"):
   phantomjs_path = "/home/cs/local/bin/phantomjs"
+
 
 def fetch(url):
   print "Fetching ", url
@@ -20,8 +20,11 @@ def fetch(url):
   phantomjs_err = "wpr/" + filename + ".err"
   har_output = "har/" + filename + ".har"
   with wpr.ReplayServer(wpr_output, replay_options=["--record"]):
-    subprocess.Popen("%s --disk-cache=false netsniff.js '%s'>'%s' 2>'%s'" %
-                     (phantomjs_path, url, har_output, phantomjs_err), shell=True)
+    subprocess.Popen(
+      "%s --disk-cache=false --ignore-ssl-errors=true "
+      "netsniff.js '%s'>'%s' 2>'%s'" %
+      (phantomjs_path, url, har_output, phantomjs_err),
+      shell=True)
 
 
 if __name__ == '__main__':
