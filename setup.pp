@@ -23,12 +23,30 @@ define local_absent () {
 }
 
 local_package {
+  # PhantomJS Requirements
+  'build-essential':;
+  'g++':;
+  'flex':;
+  'bison':;
+  'gperf':;
+  'ruby':;
+  'perl':;
+  'libsqlite3-dev':;
+  'libfontconfig1-dev':;
+  'libicu-dev':;
+  'libfreetype6':;
+  'libssl-dev':;
+  'libpng-dev':;
+  'libjpeg-dev':;
+  'python':;
+  'libx11-dev':;
+  'libxext-dev':;
+
+
   # Text Editors
   'vim':;
-
   # Languages
   'python2.7':;
-  'ruby':;
   'ruby1.9.1':;
   'ruby1.9.1-dev':;
 
@@ -52,7 +70,6 @@ local_package {
   # Searching
   'grep':;
   'ack-grep':;
-  'silversearcher-ag':;
 
   # Processes
   'htop':;
