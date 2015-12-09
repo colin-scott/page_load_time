@@ -1,6 +1,6 @@
 # Notes:
 # Assumes page_load_time/ is in your home directory
-# Also require Phantomjs: http://phantomjs.org/
+# Also require Phantomjs > 1.9 : http://phantomjs.org/
 
 $local_user = "vagrant"
 $local_home = "/home/$local_user"
@@ -126,3 +126,15 @@ exec { "download_wpr":
   path    => $paths,
   user    => $local_user,
 }
+
+# Uncomment to build PhantomJS from source
+# After downloading, cd into ~/phantomjs and run `./build.py`
+# Ensure that phantomjs is > 1.9
+# exec { "download_phantomjs":
+#   require => Package['git'],
+#   command => "git clone --recurse-submodules git://github.com/ariya/phantomjs.git $local_home/phantomjs",
+#   cwd     => "$local_home/",
+#   creates => "$local_home/phantomjs",
+#   path    => $paths,
+#   user    => $local_user,
+# }
