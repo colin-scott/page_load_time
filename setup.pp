@@ -25,23 +25,25 @@ define local_absent () {
 local_package {
   # PhantomJS Requirements
   'phantomjs':;
-  'build-essential':;
-  'g++':;
-  'flex':;
-  'bison':;
-  'gperf':;
-  'ruby':;
-  'perl':;
-  'libsqlite3-dev':;
-  'libfontconfig1-dev':;
-  'libicu-dev':;
-  'libfreetype6':;
-  'libssl-dev':;
-  'libpng-dev':;
-  'libjpeg-dev':;
-  'python':;
-  'libx11-dev':;
-  'libxext-dev':;
+
+  # Uncomment if building phantomjs from source
+  #'build-essential':;
+  #'g++':;
+  #'flex':;
+  #'bison':;
+  #'gperf':;
+  #'ruby':;
+  #'perl':;
+  #'libsqlite3-dev':;
+  #'libfontconfig1-dev':;
+  #'libicu-dev':;
+  #'libfreetype6':;
+  #'libssl-dev':;
+  #'libpng-dev':;
+  #'libjpeg-dev':;
+  #'python':;
+  #'libx11-dev':;
+  #'libxext-dev':;
 
 
   # Text Editors
@@ -105,9 +107,9 @@ define remove_python_pip () {
   }
 }
 
-# python_pip {
-#    'cronos':;
-# }
+python_pip {
+   'ipdb':;
+}
 
 # DotFiles
 file { [ "$local_home/scripts" ]:
