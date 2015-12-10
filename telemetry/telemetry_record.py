@@ -41,7 +41,7 @@ Workflow:
     12. Aggregte the minimum of all trials for each url and its modified url,
         write to PLT_SRC/telemetry/data/results.db
     13. Convert PLT_SRC/data/results.db to har files and move hars to
-        PLT_SRC/data/har
+        PLT_SRC/data/replay/
 
 TODO:
     * Move STDOUT printing to python logging module
@@ -127,6 +127,8 @@ def record(page_set, url, options='--browser=android-jb-system-chrome'):
     """
     record_path = os.path.join(CHROMIUM_SRC, 'tools/perf/record_wpr')
     cmd = ' '.join(['sudo', record_path, options, page_set])
+    print "Command is:"
+    print cmd
     p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     output, err = p.communicate()
     print output  # Print the record log for now
@@ -152,8 +154,10 @@ def get_urls(path):
     badUrls = []
     for url in urls:
         if prescreenUrl(url):
+            print "PASS prescreen: " + str(url)
             goodUrls.append(url)
         else:
+            print "FAIL prescreen: " + str(url)
             badUrls.append(url)
 
     with open('bad_urls', 'wb') as f:
