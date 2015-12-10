@@ -4,6 +4,7 @@ import os
 import subprocess
 import signal
 import sys
+from time import sleep
 
 import telemetry_web_page_replay as wpr
 from telemetry_util import FileSafeName, exponential_backoff
@@ -22,6 +23,7 @@ def fetch(url):
   with wpr.ReplayServer(wpr_output, replay_options=["--record"]):
     subprocess.Popen(
       "%s --disk-cache=false --ignore-ssl-errors=true "
+      "--web-security=no --load-images=true --ssl-protocol=tlsv1 "
       "netsniff.js '%s'>'%s' 2>'%s'" %
       (phantomjs_path, url, har_output, phantomjs_err),
       shell=True)
@@ -36,3 +38,4 @@ if __name__ == '__main__':
     for url in f:
       url = url.strip()
       exponential_backoff(fetch, url)
+      sleep(5)
