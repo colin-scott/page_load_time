@@ -137,6 +137,12 @@ if (system.args.length === 1) {
         }
     };
 
+    // Set screensize to be that of the Galaxy Tab 4
+    page.viewportSize = {
+      width: 800,
+      height: 1280
+    };
+
     page.open(page.address, function (status) {
         var har;
         if (status !== 'success') {
