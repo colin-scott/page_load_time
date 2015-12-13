@@ -5,6 +5,8 @@ from os import path
 import json
 import sys
 
+from har_profiler import *  # Better to specify methods than import *
+
 # TODO(jvesuna): Split up .pc files first
 
 def compare(har1_path, har2_path):
@@ -39,13 +41,30 @@ def compare(har1_path, har2_path):
     for encoded_url in url_intersection:
         decoded_url = urlsafe_b64decode(encoded_url)
 
-        har1_count = get_status_code_count(
+        har1_dict = get_har_dict_from_file(
                 path.join(har1_path, encoded_url + '.har'))
-        har2_count = get_status_code_count(
+        har2_dict = get_har_dict_from_file(
                 path.join(har2_path, encoded_url + '.har'))
+
+        har1_status_code_count = get_status_code_count(har1_dict)
+        har2_status_code_count = get_status_code_count(har2_dict)
+
+        har1_response_size = get_total_body_size(har1_dict)
+        har2_response_size = get_total_body_size(har2_dict)
+
+        har1_resource_type_count = get_resource_count(har1_dict)
+        har2_resource_type_count = get_resource_count(har2_dict)
+
         print 'Count for {0}:'.format(decoded_url)
-        print  har1_count
-        print  har2_count
+        print  har1_status_code_count
+        print  har2_status_code_count
+        print 'Resource type counts for {0}:'.format(decoded_url)
+        print har1_resource_type_count
+        print har2_resource_type_count
+        print 'Response body sizes'
+        print har1_response_size
+        print har2_response_size
+        print '======================================================='
 
 
 def get_encoded_url(har_path):
@@ -68,39 +87,6 @@ def get_paths(file_path):
     :param file_path: str path to directory
     """
     return glob(path.join(file_path, '*'))
-
-
-def get_status_code_count(har_path):
-    """Returns the counts of return codes for each har file
-
-    :param har1_path: str of path to har file
-    """
-    har_json = {}
-
-    try:
-        with open(har_path) as f:
-            har_json = json.load(f)
-    except Exception as e:
-        raise e
-
-    har_status = get_status(har_json)
-    return har_status
-
-
-def get_status(har_json):
-    """Returns a dict of status code counts
-
-    :param har_json: dict of the complete har
-    """
-    entries = har_json['log']['entries']
-
-    har_status_codes = Counter()
-
-    for entry in entries:
-        code = entry['response']['status']
-        har_status_codes[code] += 1
-
-    return har_status_codes
 
 
 def __main__():
