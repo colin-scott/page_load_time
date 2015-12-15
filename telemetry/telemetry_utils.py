@@ -1,5 +1,4 @@
 from base64 import urlsafe_b64encode, urlsafe_b64decode
-from glob import glob
 from subprocess import Popen, PIPE, STDOUT
 from sys import path
 import cPickle
@@ -68,7 +67,7 @@ def get_urls(path):
             goodUrls.append(url)
         else:
             print "FAIL prescreen: " + str(url)
-            failed_url(url)
+            failed_url(url, 'failed prescreen check')
 
     with open(path, 'wb') as f:
         f.write('\n'.join(goodUrls))
@@ -389,5 +388,5 @@ def write_intersection(index, request, response):
     :param request: the set of requests in all loads of the url
     :param responses: the set of responses in all loads of the url
     """
-    pickle.dump({index: (request, response)},
+    pickle.dump({'data': (request, response)},
             open('results/{0}.inter'.format(index), 'wb'))
