@@ -38,6 +38,9 @@ def compare(har1_path, har2_path):
     print 'Comparing {0} urls (num urls in both dirs)'.format(
             str(len(url_intersection)))
 
+    total_har1_resource_count = Counter()
+    total_har2_resource_count = Counter()
+
     for encoded_url in url_intersection:
         decoded_url = urlsafe_b64decode(encoded_url)
 
@@ -55,16 +58,27 @@ def compare(har1_path, har2_path):
         har1_resource_type_count = get_resource_count(har1_dict)
         har2_resource_type_count = get_resource_count(har2_dict)
 
+        total_har1_resource_count.update(har1_resource_type_count)
+        total_har2_resource_count.update(har2_resource_type_count)
+
         print 'Count for {0}:'.format(decoded_url)
         print  har1_status_code_count
         print  har2_status_code_count
         print 'Resource type counts for {0}:'.format(decoded_url)
         print har1_resource_type_count
         print har2_resource_type_count
+        print 'Resource count difference: {0}'.format(
+                abs(
+                    sum(har1_resource_type_count.values()) -
+                    sum(har2_resource_type_count.values())))
         print 'Response body sizes'
         print har1_response_size
         print har2_response_size
         print '======================================================='
+
+    print 'Total resource counts'
+    print total_har1_resource_count
+    print total_har2_resource_count
 
 
 def get_encoded_url(har_path):
