@@ -5,8 +5,11 @@ Usage: sudo python telemetry.py -t 5
 from glob import glob
 from optparse import OptionParser
 from shutil import move
+from sys import path
 
 from telemetry_utils import *
+
+path.append('/home/jamshed/src/third_party/webpagereplay')
 
 def __main__():
     # Get the number of trials to run for each url
