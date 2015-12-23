@@ -352,7 +352,7 @@ def run_benchmarks(urls, urlIndices, trial_number):
     output_path = 'temp'
     trial_key = 'trial{0}'.format(trial_number)
 
-    cmd = ('sudo ' + benchmark_path + '--profiler=trace telemetryBenchmarks.url{0}')
+    cmd = ('sudo ' + benchmark_path + ' --profiler=trace telemetryBenchmarks.url{0}')
     for i in urlIndices:
         try:
             out, err, returncode = get_benchmark_result(cmd.format(i))
