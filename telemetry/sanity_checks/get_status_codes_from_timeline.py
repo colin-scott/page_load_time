@@ -1,6 +1,10 @@
 """Prints a status code dict from a given timeline events.json file
 
 Requires proper json formatting
+
+TODO (jvesuna): Similar to compare_desktop... Take two dirs, compute the set of
+similar files, and output a % similarity between the two with respect to status
+codes
 """
 from collections import Counter
 from re import search
