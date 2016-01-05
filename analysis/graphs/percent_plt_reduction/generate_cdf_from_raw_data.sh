@@ -31,6 +31,9 @@ if [ "$2" == "" ]; then
 elif [ "$3" == "" ]; then
   gnuplot percent_reduction_2_lines.gpi
   gnuplot percent_reduction_linear_2_lines.gpi
+elif [ "$4" == "" ]; then
+  gnuplot percent_reduction_3_lines.gpi
+  gnuplot percent_reduction_linear_3_lines.gpi
 elif [ "$5" == "" ]; then
   gnuplot percent_reduction_4_lines.gpi
   gnuplot percent_reduction_linear_4_lines.gpi
