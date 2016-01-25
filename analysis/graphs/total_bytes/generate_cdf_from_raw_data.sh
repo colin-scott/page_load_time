@@ -11,3 +11,4 @@ fi
 cut -d ' ' -f 3 $1 | sort -n > total_bytes.cdf
 ~/Scripts/cdf/compile_ccdf.pl total_bytes.cdf > buf && mv buf total_bytes.cdf
 gnuplot total_bytes.gpi
+gnuplot total_bytes_linear.gpi
