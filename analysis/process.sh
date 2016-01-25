@@ -20,3 +20,5 @@ cd ./graphs/percent_plt_reduction/; ./generate_cdf_from_raw_data.sh ../../median
 cd ../../
 cd ./graphs/ratio_bytes_to_reduction/; ./generate_cdf_from_raw_data.sh ../../ratio.dat
 cd ../../
+cd ./graphs/total_bytes/; ./generate_cdf_from_raw_data.sh ../../cacheable_bytes.dat
+cd ../../
