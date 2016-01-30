@@ -1,6 +1,6 @@
 # Note you need gnuplot 4.4 for the pdfcairo terminal.
 
-set terminal pdf font "Helvetica, 8" linewidth 4
+set terminal pdf font "Helvetica, 12" linewidth 4
 
 # Line style for axes
 set style line 80 lt rgb "#808080"
@@ -30,9 +30,14 @@ set style line 1 lt rgb "#5060D0" lw 2# pt 2
 set style line 4 lt rgb "#F25900" lw 2# pt 9
 
 set key bottom right
+set xtics font ",12"
+set ytics font ",12"
 
 set ylabel "CDF of web pages"
 set xlabel "Fraction reduction in PLT [(unmodified - perfect cache) / unmodified)]"
+
+set xlabel font ",12"
+set ylabel font ",12"
 
 set yrange [0:]
 set xrange [0:1]
