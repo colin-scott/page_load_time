@@ -32,7 +32,7 @@ c_to_dat_filename = {
 }
 
 class Series(object):
-  def initialize(self, c, datapoints):
+  def __init__(self, c, datapoints):
     self.c = c
     self.datapoints = datapoints
 
@@ -48,7 +48,7 @@ def parse_json(json_str):
       series.append(Series(c, normalized))
   return series
 
-if sys.argc < 1:
+if len(sys.argv) < 1:
   print >> sys.stderr, "Usage: <JSON array for whatif_matrix>"
   sys.exit(1)
 
@@ -57,4 +57,4 @@ for s in series:
   output = c_to_dat_filename[s.c]
   with open(output, "w") as f:
     for x,y in zip([0,0.25,0.5,0.75,1], s.datapoints):
-      print >> f, "%f $f" % ((x,y))
+      print >> f, "%f %f" % ((x,y))

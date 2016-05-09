@@ -9,6 +9,9 @@ set style line 80 lt rgb "#808080"
 set style line 81 lt 0   # dashed
 set style line 81 lt rgb "#808080"  # grey
 
+set style line 82 lt rgb "#696969"  # black
+
+set grid xtics ytics mytics mytics ls 82, ls 81
 set grid back linestyle 81
 set border 3 back linestyle 80 # Remove border on top and right.  These
              # borders are useless and make it harder
@@ -16,9 +19,12 @@ set border 3 back linestyle 80 # Remove border on top and right.  These
     # Also, put it in grey; no need for so much emphasis on a border.
 set xtics nomirror
 set ytics nomirror
+set xtics 0,0.25,1.0
 
 #set log x
 #set mxtics 10    # Makes logscale look good.
+#set mytics 0,0.25,1.5
+#set ytics 1.0
 
 # Line styles: try to pick pleasing colors, rather
 # than strictly primary colors or hard-to-see colors
@@ -34,13 +40,13 @@ set key bottom right
 set ylabel "Ratio of page load time"
 set xlabel "Ratio of network time"
 
-set yrange [0:1.5]
+#set yrange [0:1.5]
 set xrange [0:1]
 # set xrange [1:30]
 # set log x
 
 set output "whatif.pdf"
-plot 'c2.dat' using 1:2 title "comp=2" w l ls 1, \
-     'c1.dat' using 1:2 title "comp=1" w l ls 2, \
-     'c.5.dat' using 1:2 title "comp=1/2" w l ls 3, \
-     'c0.dat' using 1:2 title "comp=0" w l ls 4
+plot 'c2.dat' using 1:2 title "comp=2" w lp ls 1, \
+     'c1.dat' using 1:2 title "comp=1" w lp ls 2, \
+     'c.5.dat' using 1:2 title "comp=1/2" w lp ls 3, \
+     'c0.dat' using 1:2 title "comp=0" w lp ls 4
