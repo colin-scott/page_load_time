@@ -7,16 +7,15 @@ import sys
 #
 # a JSON array, with 33 entries in it.
 #
-# The first 5 entries correspond raw page load times for C=0, N=[0,1/4,1/2,3/4,1].
-# The next 5 entries correspond to C=1/4, ...
-# C=1/2
-# C=3/4
-# C=1
-# The 26th through 30th entries correpond to C=2.
+# The first 6 entries correspond raw page load times for # N=0,C=[0,1/4,1/2,3/4,1,2]
+# Next 6 entries: N=1/4...
+# Next 6 entries: N=1/2..
+# Next 6 entries: N=3/4..
+# Next 6 entries: N=1..
 #
 # The last 3 entries can be ignored.
 #
-# The actual PLT should be the 25th entry, C=1,N=1. We should then normalize the raw PLTs to that number.
+# The actual PLT should be the 29th entry, C=1,N=1. We should then normalize the raw PLTs to that number.
 #
 # From that, we can generate the gnuplot figure.
 
@@ -37,12 +36,14 @@ class Series(object):
     self.datapoints = datapoints
 
 def parse_json(json_str):
-  a = json.loads(json_str)
-  plt = a[24]
+  a = json.loads(json_str)[0:30]
+  assert(len(a) == 30)
+  plt = a[28]
   series = []
-  step = 5
-  for start_index, c in [(0,"0"),(5,"1/4"),(10,"1/2"),(15,"3/4"),(20,"1"),(25,"2")]:
-    datapoints = a[start_index:start_index+step]
+  step = 6
+  for start_index, c in [(0,"0"),(1,"1/4"),(2,"1/2"),(3,"3/4"),(4,"1"),(5,"2")]:
+    datapoints = a[start_index::step]
+    assert(len(datapoints) == 5) # 5 values for N
     normalized = map(lambda x: x / plt, datapoints)
     if c not in to_ignore:
       series.append(Series(c, normalized))
