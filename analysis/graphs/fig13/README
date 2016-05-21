@@ -1,1 +1,2 @@
+mkdir per_url
 ./generate_per_url_figures.rb whatif.dat
